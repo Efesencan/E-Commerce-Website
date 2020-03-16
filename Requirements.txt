@@ -1,3 +1,4 @@
 pip==20.0.2
 django==3.0.4
 djangorestframework==3.11.0
+pandas
