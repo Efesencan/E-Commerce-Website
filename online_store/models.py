@@ -1,10 +1,11 @@
 from django.db import models
 
 
+###On delete de oluyor bilmiyoruz!!!!!!!
+
+
+
 # Create your models here.
-
-
-
 class Product(models.Model):
     ### Primary Key
     pId = models.AutoField(primary_key=True) 
@@ -74,7 +75,6 @@ class Client(models.Model):
     email     = models.EmailField(max_length=254)
     address   = models.CharField(max_length=500)
     taxNumber = models.IntegerField()
-    fId       = models.ForeignKey('Favourite', null = True,on_delete = models.SET_NULL)
     #password  = forms.CharField(max_length=32, widget=forms.PasswordInput)
 
 
