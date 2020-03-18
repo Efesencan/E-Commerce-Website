@@ -29,64 +29,84 @@ class Products(models.Model):
 # bir alışveriş olduğunu
 
 class Basket(models.Model):
+    bId            = models.AutoField(primary_key=True)
+    cID            = models.ForeignKey(Client, on_delete=models.SET_NULL)
+    pId            = models.ForeignKey(Products, on_delete=models.SET_NULL) ##### değiştirsek 
+    quantity       = models.IntegerField()
+    totalPrice     = models.FloatField()
+    purchasedDate  = models.DateField()
+    isPurchased    = models.NullBooleanField(False)
 
-    pId = models.ForeignKey(Products, on_delete=models.SET_NULL) ##### değiştirsek 
-    dId = models.ForeignKey(Delivery, on_delete=models.SET_NULL)
+    class Meta:
+        unique_together = (('bId', 'cID'),)
 
-    isPurchased = models.NullBooleanField(False);
-
-    def Purchase():
-        isPurchased =True
-    def SeeMyBasket():
+ #   def Purchase():
+  #      isPurchased =True
+ #   def SeeMyBasket():
         # filter by isPurchased == False
-    def SeeMyOldPurchases ():
+ #   def SeeMyOldPurchases ():
         #filter by isPurchased == True
+        
+#        Gok p1
+#        Gok p2
+#        gok p3
+#        gok p4
         
 
 class Delivery(models.Model):
     
-    dId = models.AutoField(primary_key=True)
-    cId            =
-    pId            =
+    dId            = models.AutoField(primary_key=True)
     address        = models.CharField(max_length=500)
-    quantity       = models.IntegerField()
-    totalPrice     = models.FloatField()
     IsDelivered    = models.NullBooleanField()
 
 
+
+class Favourites(models.Model):
+    fId            = models.AutoField(primary_key=True)
+    cID            = models.ForeignKey(Client, on_delete=models.SET_NULL)
+    pId            = models.ForeignKey(Products, on_delete=models.SET_NULL) 
+    class Meta:
+        unique_together = (('fId', 'cID'),)
+
+
 class Client(models.Model):
-    cId = models.AutoField(primary_key=True)
-
-
+    cId       = models.AutoField(primary_key=True)
+    name      = models.CharField(max_length=50)
+    email     = models.EmailField(max_length=254)
+    address   = models.CharField(max_length=500)
+    taxNumber = models.IntegerField()
+    fId       = models.ForeignKey(Favourites, on_delete=models.SET_NULL)
+    password  = forms.CharField(max_length=32, widget=forms.PasswordInput)
+    
 
 
 
 #add to basket
 #    create new basket item with iscurrent set to true, if no entry with basket is current true.
 #    else 
-*purchase 
-basketde isCurrent== True yoksa yeni basket objesi yaratsın
-ve sadece purchase gerçekleşirse isCurrent = False
+#*purchase 
+#basketde isCurrent== True yoksa yeni basket objesi yaratsın
+#ve sadece purchase gerçekleşirse isCurrent = False
 
 class Invoice(models.Model):
     iId = models.AutoField(primary_key=True)
     
     class Meta:
-        unique_together = (('iId', 'pId','dId','cId'),)
+        unique_together = (('iId', 'bId','dId','cId'),)
     
-    pId = models.ForeignKey(Products, on_delete=models.SET_NULL) ##### değiştirsek 
+    bId = models.ForeignKey(Basket, on_delete=models.SET_NULL) ##### değiştirsek 
     dId = models.ForeignKey(Delivery, on_delete=models.SET_NULL)
     
 
-def  deleteProduct():
-    isActive = False
+#def  deleteProduct():
+#    isActive = False
 
-def retrieveAllProducts():
+#def retrieveAllProducts():
     ##filter by active == True
 
-def retrieveAllInvoice():
+#def retrieveAllInvoice():
 
-accessdata (Invoice, filter = isActive == True )
+#accessdata (Invoice, filter = isActive == True )
 
 
 
@@ -214,7 +234,7 @@ active = models.NullBooleanField()
 
 #satın alınan ürünler
 # customer ,cid =5  , products = 1,2, 4
-
+"""
 Bugun gittin 3 tane ürün aldın
 Yarın da iki aldın
 
@@ -231,3 +251,4 @@ ikinci gün:
     5  888
 
 hangisinin birinci gün hangisinin ikinci gün olduğunu nerden biliyorsun ?
+"""
