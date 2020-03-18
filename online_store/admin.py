@@ -15,7 +15,7 @@ class DeliveryAdmin(admin.ModelAdmin):
     fields = ['address', 'IsDelivered']
 
 class ClientAdmin(admin.ModelAdmin):
-    fields = ['name', 'email','address','taxNumber','fId']
+    fields = ['name', 'email','address','taxNumber']
 
 class InvoiceAdmin(admin.ModelAdmin):
     fields = ['cId','bId', 'dId']
