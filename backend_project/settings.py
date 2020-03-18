@@ -79,12 +79,9 @@ WSGI_APPLICATION = 'backend_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'yvvdzdnq',
-        'USER': 'yvvdzdnq',
-        'PASSWORD': 'tnNw4RId4ODL2Uwx1FZ7cXyhnVJrtu-7',
-        'HOST': 'drona.db.elephantsql.com',
-        'PORT': '5432'
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME'  : 'ONLINESTORE_DATABASE',
+        
     }
 }
 
