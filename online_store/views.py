@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from .models import Account # added
 
 
 def index(request):
@@ -24,10 +25,16 @@ class AccountCreate(APIView):
     def post(self, request, format='json'):
         serializer = AccountSerializer(data=request.data)
         if serializer.is_valid():
-            user = serializer.save()
-            if user:
-                json = serializer.data
-                return Response(json, status=status.HTTP_201_CREATED)
+            data = serializer.validated_data["username"]
+            duplicate_users = Account.objects.filter(username=data)
+            if(duplicate_users):
+                return Response(data={"User":"already exist"}, status=status.HTTP_200_OK)
+            else:
+                user = serializer.save()
+                if user:
+                    json = serializer.data
+                    
+                    return Response(json, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class HelloWorldView(APIView):
