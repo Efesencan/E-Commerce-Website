@@ -1,9 +1,7 @@
 from django.contrib import admin
+from .models import Account
 from .models import *
-
 # Register your models here.
-
-
 class ProductAdmin(admin.ModelAdmin):
     fields = ['isActive', 'quantity','price','cost','name','modelNo', \
      'description','warrantyStatus','disturbuterInfo','categoryName','listedDate']
@@ -23,6 +21,14 @@ class InvoiceAdmin(admin.ModelAdmin):
 class FavouriteAdmin(admin.ModelAdmin):
     fields = ['cId','pId']
 
+
+class AccountAdmin(admin.ModelAdmin):
+    model = Account
+
+#This one is for authentication
+admin.site.register(Account, AccountAdmin)
+
+#rest is for models
 admin.site.register(Product,  ProductAdmin)
 admin.site.register(Basket,    BasketAdmin)
 admin.site.register(Delivery,  DeliveryAdmin)

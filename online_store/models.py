@@ -1,10 +1,17 @@
 from django.db import models
-
-
+from django.contrib.auth.models import AbstractUser
 ###On delete de oluyor bilmiyoruz!!!!!!!
 
 
+class Account(AbstractUser):
 
+    isCustomer        =  models.NullBooleanField(default=True)
+    isProductManager  =  models.NullBooleanField(default=False)
+    isSalesManager    =  models.NullBooleanField(default=False)
+
+# https://docs.djangoproject.com/en/1.8/_modules/django/contrib/auth/models/
+
+ 
 # Create your models here.
 class Product(models.Model):
     ### Primary Key
