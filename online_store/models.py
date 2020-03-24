@@ -4,7 +4,6 @@ from django.contrib.auth.models import AbstractUser
 
 
 class Account(AbstractUser):
-
     isCustomer        =  models.NullBooleanField(default=True)
     isProductManager  =  models.NullBooleanField(default=False)
     isSalesManager    =  models.NullBooleanField(default=False)
