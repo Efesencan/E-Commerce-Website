@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from .models import Account # added
-
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
 def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
@@ -33,7 +33,6 @@ class AccountCreate(APIView):
                 user = serializer.save()
                 if user:
                     json = serializer.data
-                    
                     return Response(json, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -46,4 +45,13 @@ class HelloWorldView(APIView):
             return Response(data={"hello":"world"}, status=status.HTTP_200_OK)
         else:
             return Response(data={"Your are not a Product Manager"}, status=status.HTTP_200_OK)
+    
+class LoginView(APIView):   
+    def get(self, request):
+        form = AuthenticationForm()
+        return render(request,"registration/login.html",{"form":form})
+    def post(self,request):
+        form = AuthenticationForm(data = request.POST)
+        return Response({"Some" : "Meaningless text"},status=status.HTTP_200_OK)
+         
     
