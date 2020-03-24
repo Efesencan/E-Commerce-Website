@@ -40,4 +40,10 @@ class AccountCreate(APIView):
 class HelloWorldView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     def get(self, request):
-        return Response(data={"hello":"world"}, status=status.HTTP_200_OK)
+        if request.user.isProductManager:
+            print("AAAAAA----",request.user.isCustomer)
+            print("AAAAAA----",request.user.isProductManager)
+            return Response(data={"hello":"world"}, status=status.HTTP_200_OK)
+        else:
+            return Response(data={"Your are not a Product Manager"}, status=status.HTTP_200_OK)
+    
