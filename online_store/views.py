@@ -9,6 +9,7 @@ from rest_framework.views import APIView
 from .serializers import AccountSerializer #,MyTokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
+import json
 """class ObtainTokenPairWithColorView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 """
@@ -35,12 +36,12 @@ class AccountCreate(APIView):
             data = serializer.validated_data["username"]
             duplicate_users = Account.objects.filter(username=data)
             if(duplicate_users):
-                return Response(data={"User":"already exist"}, status=status.HTTP_200_OK)
+                return Response(data={"User":"already exist"}, status=status.HTTP_409_CONFLICT)
             else:
                 user = serializer.save()
                 if user:
-                    json = serializer.data
-                    return Response(json, status=status.HTTP_201_CREATED)
+                    Tokens = get_tokens_for_user(user)
+                    return Response(data=Tokens, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class HelloWorldView(APIView):
@@ -54,31 +55,47 @@ class HelloWorldView(APIView):
             return Response(data={"Your are not a Product Manager"}, status=status.HTTP_200_OK)
     
 class LoginView(APIView):   
-    def get(self, request):
-        form = AuthenticationForm()
-        return render(request,"registration/login.html",{"form":form})
-        
+
     def post(self,request):
-        form = AuthenticationForm(data = request.POST)
-        username = request.POST['username']
-        password = request.POST['password']
+        data = json.loads(request.body.decode('utf-8'))
+        username = data["username"]
+        password = data["password"]
         user = authenticate(username=username, password=password)
         if user is not None:
             Tokens = get_tokens_for_user(user)
             return Response(data = Tokens,status=status.HTTP_200_OK)
         else:
-            return Response({"Not":"Care"}, status=status.HTTP_400_BAD_REQUEST)
+            response = Response({"Error":"Not valid user"}, status=status.HTTP_400_BAD_REQUEST)
+            return response 
     
-
+class OnlyUserView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request):
+            return Response(data={"You : Okay"}, status=status.HTTP_200_OK)
+            
 class CustomerView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     def get(self, request):
         if request.user.isCustomer:           
-            return render(request,"customer/customer.html")
+             return Response(data={"You are  : Customer"}, status=status.HTTP_200_OK)
         else:
-            return Response(data={"Your are not : Customer"}, status=status.HTTP_200_OK)
+            return Response(data={"Your are not : Customer"}, status=status.HTTP_400_BAD_REQUEST)
+class ProductManagerView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request):
+        if request.user.isProductManager:           
+            return Response(data={"You are  : ProductManager"}, status=status.HTTP_200_OK)
+        else:
+            return Response(data={"Your are not : ProductManager"}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class SalesManagerView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request):
+        if request.user.isSalesManager:           
+            return Response(data={"Your are  : SaleManager"}, status=status.HTTP_200_OK)
+        else:
+            return Response(data={"Your are not : SaleManager"}, status=status.HTTP_400_BAD_REQUEST)
 
 """
 if user is not None:

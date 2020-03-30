@@ -18,9 +18,7 @@ class AccountSerializer(serializers.ModelSerializer):
     """
     Currently unused in preference of the below.
     """
-    email = serializers.EmailField(
-        required=True
-    )
+    email = serializers.EmailField(required=True)
     username = serializers.CharField()
     password = serializers.CharField(min_length=8, write_only=True)
 
