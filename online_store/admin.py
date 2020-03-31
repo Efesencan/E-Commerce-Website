@@ -25,6 +25,9 @@ class FavouriteAdmin(admin.ModelAdmin):
 class AccountAdmin(admin.ModelAdmin):
     model = Account
 
+class CategoryAdmin(admin.ModelAdmin):
+     fields = ['categoryName']
+
 #This one is for authentication
 admin.site.register(Account, AccountAdmin)
 
@@ -35,3 +38,4 @@ admin.site.register(Delivery,  DeliveryAdmin)
 admin.site.register(Client,    ClientAdmin)
 admin.site.register(Invoice,   InvoiceAdmin)
 admin.site.register(Favourite, FavouriteAdmin)
+admin.site.register(Category,  CategoryAdmin)

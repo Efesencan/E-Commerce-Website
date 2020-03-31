@@ -4,7 +4,7 @@ from django.contrib.auth.models import AbstractUser
 
 
 class Account(AbstractUser):
-    isCustomer        =  models.NullBooleanField(default=True)
+    isClient          =  models.NullBooleanField(default=True)
     isProductManager  =  models.NullBooleanField(default=False)
     isSalesManager    =  models.NullBooleanField(default=False)
 
@@ -26,13 +26,16 @@ class Product(models.Model):
     description      = models.CharField(max_length=500) # TEXT
     warrantyStatus   = models.IntegerField()
     disturbuterInfo  = models.CharField(max_length=100) #TEXT
-    categoryName     = models.CharField(max_length=50) #TEXT
+    categoryName     = models.ForeignKey('Category', null = True,on_delete = models.SET_NULL)
     listedDate       = models.DateField()
+
+class Category(models.Model):
+    categoryName = models.CharField(max_length=80, primary_key=True)
 
 # bir müşterinin birden fazla ürün alması, sepetini görmesi,
 # eski siparişlerini görüntülemesi özellikleri
 # en son bu class invoice de kullanılacak ürün tarafı olacak, ie bi
-# her transactionda customer ve pIdleri söyleyebilmeli
+# her transactionda Client ve pIdleri söyleyebilmeli
 # örneğin gün1 x kişisi ürün 1 ve ürün 2 aldı. gün2 x kişisi bu sefere ürün3 ürün4 ü aldı
 # bize gün1 de x kişisinin ürün1 ve ürün 2 aldığını söylebilmeli aynı şekilde ürün3 farklı 
 # bir alışveriş olduğunu
@@ -236,13 +239,13 @@ active = models.NullBooleanField()
 
 
 #satın alınan ürünler
-# customer ,cid =5  , products = 1,2, 4
+# Client ,cid =5  , products = 1,2, 4
 """
 Bugun gittin 3 tane ürün aldın
 Yarın da iki aldın
 
 Basket Table ne var ?
-basket id ,customer id ,product id ,
+basket id ,Client id ,product id ,
 
 ilk gün:
     5  1 
