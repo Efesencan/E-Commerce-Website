@@ -12,7 +12,7 @@ class BasketAdmin(admin.ModelAdmin):
 class DeliveryAdmin(admin.ModelAdmin):
     fields = ['address', 'IsDelivered']
 
-class ClientAdmin(admin.ModelAdmin):
+class CustomerAdmin(admin.ModelAdmin):
     fields = ['name', 'email','address','taxNumber']
 
 class InvoiceAdmin(admin.ModelAdmin):
@@ -35,7 +35,7 @@ admin.site.register(Account, AccountAdmin)
 admin.site.register(Product,  ProductAdmin)
 admin.site.register(Basket,    BasketAdmin)
 admin.site.register(Delivery,  DeliveryAdmin)
-admin.site.register(Client,    ClientAdmin)
+admin.site.register(Customer,    CustomerAdmin)
 admin.site.register(Invoice,   InvoiceAdmin)
 admin.site.register(Favourite, FavouriteAdmin)
 admin.site.register(Category,  CategoryAdmin)

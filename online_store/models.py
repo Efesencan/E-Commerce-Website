@@ -42,7 +42,7 @@ class Category(models.Model):
 
 class Basket(models.Model):
     bId            = models.AutoField(primary_key=True)
-    cId            = models.ForeignKey('Client', null = True,on_delete = models.SET_NULL)
+    cId            = models.ForeignKey('Customer', null = True,on_delete = models.SET_NULL)
     pId            = models.ForeignKey('Product', null = True,on_delete = models.SET_NULL) ##### değiştirsek 
     quantity       = models.IntegerField()
     totalPrice     = models.FloatField()
@@ -73,12 +73,12 @@ class Delivery(models.Model):
 
 class Favourite(models.Model):
     fId            = models.AutoField(primary_key=True)
-    cId            = models.ForeignKey('Client', null=True,on_delete = models.SET_NULL)
+    cId            = models.ForeignKey('Customer', null=True,on_delete = models.SET_NULL)
     pId            = models.ForeignKey('Product', null = True,on_delete = models.SET_NULL) 
     class Meta:
         unique_together = (('fId', 'cId'),)
 
-class Client(models.Model):
+class Customer(models.Model):
     cId       = models.AutoField(primary_key=True)
     name      = models.CharField(max_length=50)
     email     = models.EmailField(max_length=254)
@@ -99,7 +99,7 @@ class Invoice(models.Model):
     
     class Meta:
         unique_together = (('iId', 'bId','dId','cId'),)
-    cId = models.ForeignKey('Client', null=True,on_delete = models.SET_NULL)
+    cId = models.ForeignKey('Customer', null=True,on_delete = models.SET_NULL)
     bId = models.ForeignKey('Basket', null = True,on_delete = models.SET_NULL) ##### değiştirsek 
     dId = models.ForeignKey('Delivery', null = True,on_delete = models.SET_NULL)
     
