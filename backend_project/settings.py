@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'online_store',
+    'corsheaders',
+
 ]
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
@@ -68,6 +70,7 @@ SIMPLE_JWT = {
 
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -151,3 +154,8 @@ STATIC_URL = '/static/'
 
 #authentication
 AUTH_USER_MODEL = 'online_store.Account'
+
+CORS_ORIGIN_WHITELIST = (
+         'https://localhost:3000',
+        'http://localhost:3000',
+     )
