@@ -14,6 +14,6 @@ pip install -r Requirements.txt
 
 ### For Uploading Requirements.txt:
 
-pip3 install pipenv
-pipenv shell
-pip3 install -r Requirements.txt
+pip3 install pipenv<br/>
+pipenv shell<br/>
+pip3 install -r Requirements.txt<br/>
