@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse,JsonResponse
 from .models import Account # added
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -10,14 +10,19 @@ from .serializers import AccountSerializer #,MyTokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 import json
+
+from .models import Product
+from .serializers import ProductSerializer
 """class ObtainTokenPairWithColorView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 """
 
 
 def index(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
-
+    query_set = Product.objects.all()
+    serializer = ProductSerializer(query_set,many =True)
+    return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
+    
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
 

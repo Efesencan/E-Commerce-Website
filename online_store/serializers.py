@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from .models import Account
+from .models import Account, Product
 
 """
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -36,3 +36,13 @@ class AccountSerializer(serializers.ModelSerializer):
         return instance
 
     # def update() make need in future
+
+
+class ProductSerializer(serializers.ModelSerializer):
+    """ Product Model Serializer """
+
+    class Meta:
+        model = Product
+        exclude = ['isActive','pId']
+
+
