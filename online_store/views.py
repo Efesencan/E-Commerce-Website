@@ -105,20 +105,30 @@ class SalesManagerView(APIView):
             
 
 
-class allProducts(APIView):
+class allProducts(APIView, ):
     permission_classes = (permissions.AllowAny,)
     def get(self, request):
         print( "Request: ------" ,request.GET.get("count"))
+
         count = request.GET.get("count")
         order_with = request.GET.get("order_with")
         option = request.GET.get("option")
-        #print("Request: ------",order_with)
-       
-        query_set = Product.objects.filter(isActive=True).order_by( order_with if order_with != None else "name" )
+        theCategory = request.GET.get("categoryName")
+
+        filters = {"isActive": True}
+        if theCategory != None :
+            filters["categoryName"] = theCategory
+    
+        query_set = Product.objects.filter( **filters ).order_by( order_with if order_with != None else "name" )
+        
+        
         if option == "False":
             query_set = query_set.reverse()
 
         query_set = query_set[:int(count) if count != None else 5]
+
+
+
         #query_set = Product.objects.all()
         serializer = CardSerializer(query_set,many =True)
         return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
