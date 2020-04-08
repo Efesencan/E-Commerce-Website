@@ -34,6 +34,7 @@ class Product(models.Model):
 
 class Category(models.Model):
     categoryName = models.CharField(max_length=80, primary_key=True)
+    categoryIconScr = models.CharField(max_length=80)
 
 # bir müşterinin birden fazla ürün alması, sepetini görmesi,
 # eski siparişlerini görüntülemesi özellikleri

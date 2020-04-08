@@ -140,9 +140,9 @@ class allCategories(APIView, ):
     def get(self, request):
        
         query_set = Category.objects.all()
-        q = [i.categoryName for i in list(query_set)]
         serializer = CategorySerializer(query_set,many =True)
-        return Response(data={"categoryNames":q}, status=status.HTTP_200_OK)
+        return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
+
 
 """
 if user is not None:

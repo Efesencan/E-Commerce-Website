@@ -56,4 +56,4 @@ class CategorySerializer(serializers.ModelSerializer):
     """ Product Model Serializer """
     class Meta:
         model = Category
-        fields = ['categoryName',]
+        fields = ['categoryName',"categoryIconScr"]
