@@ -7,6 +7,7 @@ from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import AccountSerializer #,MyTokenObtainPairSerializer
+from .serializers import CardSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 import json
@@ -101,10 +102,29 @@ class SalesManagerView(APIView):
             return Response(data={"Your are  : SaleManager"}, status=status.HTTP_200_OK)
         else:
             return Response(data={"Your are not : SaleManager"}, status=status.HTTP_400_BAD_REQUEST)
+            
 
+
+class allProducts(APIView):
+    permission_classes = (permissions.AllowAny,)
+    def get(self, request):
+        print( "Request: ------" ,request.GET.get("count"))
+        count = request.GET.get("count")
+        order_with = request.GET.get("order_with")
+        option = request.GET.get("option")
+        #print("Request: ------",order_with)
+       
+        query_set = Product.objects.filter(isActive=True).order_by( order_with if order_with != None else "name" )
+        if option == "False":
+            query_set = query_set.reverse()
+
+        query_set = query_set[:int(count) if count != None else 5]
+        #query_set = Product.objects.all()
+        serializer = CardSerializer(query_set,many =True)
+        return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
 """
 if user is not None:
     # A backend authenticated the credentials
 else:
     # No backend authenticated the credentials
-"""
+""" 

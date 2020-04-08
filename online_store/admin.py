@@ -1,7 +1,10 @@
 from django.contrib import admin
+from django.apps import apps
 from .models import Account
 from .models import *
 # Register your models here.
+
+"""
 class ProductAdmin(admin.ModelAdmin):
     fields = ['isActive', 'quantity','price','cost','name','modelNo', \
      'description','warrantyStatus','disturbuterInfo','categoryName','listedDate']
@@ -39,3 +42,11 @@ admin.site.register(Customer,    CustomerAdmin)
 admin.site.register(Invoice,   InvoiceAdmin)
 admin.site.register(Favourite, FavouriteAdmin)
 admin.site.register(Category,  CategoryAdmin)
+"""
+models = apps.get_models()
+
+for model in models:
+    try:
+        admin.site.register(model)
+    except admin.sites.AlreadyRegistered:
+        pass

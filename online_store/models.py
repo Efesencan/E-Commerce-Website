@@ -20,6 +20,9 @@ class Product(models.Model):
     isActive         = models.NullBooleanField()
     quantity         = models.IntegerField()
     price            = models.FloatField()
+    oldPrice         = models.FloatField()
+    stock            = models.IntegerField()  
+    imgSrc           = models.CharField(max_length=100)
     cost             = models.FloatField()
     name             = models.CharField(max_length=50) # TEXT 
     modelNo          = models.CharField(max_length=50) # TEXT ,BV200423 universal code

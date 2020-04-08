@@ -46,3 +46,8 @@ class ProductSerializer(serializers.ModelSerializer):
         exclude = ['isActive','pId']
 
 
+class CardSerializer(serializers.ModelSerializer):
+    """ Product Model Serializer """
+    class Meta:
+        model = Product
+        fields = ['price', 'oldPrice', 'imgSrc', 'name','stock']
