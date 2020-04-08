@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from .models import Account, Product
+from .models import Account, Product,Category
 
 """
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -51,3 +51,9 @@ class CardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ['price', 'oldPrice', 'imgSrc', 'name','stock']
+
+class CategorySerializer(serializers.ModelSerializer):
+    """ Product Model Serializer """
+    class Meta:
+        model = Category
+        fields = ['categoryName',]

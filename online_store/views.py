@@ -6,13 +6,13 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import AccountSerializer #,MyTokenObtainPairSerializer
-from .serializers import CardSerializer
+from .serializers import AccountSerializer,CardSerializer,CategorySerializer #,MyTokenObtainPairSerializer
+
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 import json
 
-from .models import Product
+from .models import Product,Category
 from .serializers import ProductSerializer
 """class ObtainTokenPairWithColorView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
@@ -132,6 +132,18 @@ class allProducts(APIView, ):
         #query_set = Product.objects.all()
         serializer = CardSerializer(query_set,many =True)
         return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
+
+
+
+class allCategories(APIView, ):
+    permission_classes = (permissions.AllowAny,)
+    def get(self, request):
+       
+        query_set = Category.objects.all()
+        q = [i.categoryName for i in list(query_set)]
+        serializer = CategorySerializer(query_set,many =True)
+        return Response(data={"categoryNames":q}, status=status.HTTP_200_OK)
+
 """
 if user is not None:
     # A backend authenticated the credentials
