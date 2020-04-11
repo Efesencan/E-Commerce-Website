@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from .models import Account, Product,Category,Customer,Basket
+from .models import Account, Product,Category,Customer,Basket,Favourite
 
 """
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -77,3 +77,15 @@ class BasketSerializer (serializers.ModelSerializer):
                   'price','description','imgSrc','modelNo',
                   'warrantyStatus','disturbuterInfo','categoryName','categoryIconScr',
                   'listedDate']
+
+class FavouriteSerializer(serializers.ModelSerializer):
+
+    name             = serializers.CharField(source='pId.name')
+    price            = serializers.FloatField(source='pId.price')
+    categoryName     = serializers.CharField(source ='pId.categoryName.categoryName')
+    imgSrc           = serializers.CharField(source='pId.imgSrc')
+
+
+    class Meta:
+        model = Favourite
+        fields = ['pId','name','price','categoryName','imgSrc',]

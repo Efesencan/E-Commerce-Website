@@ -20,5 +20,8 @@ urlpatterns = [
     path("addBasket",views.addBasket.as_view(),name="add_basket"),
     path("dellBasket",views.dellBasket.as_view(),name="dell_basket"),
     path("updateBasket",views.updateBasket.as_view(),name="update_basket"),
+    path("seeFavourite",views.seeFavourite.as_view(),name="see_Favourite"),
+    path("addFavourite",views.addFavourite.as_view(),name="add_Favourite"),
+    path("dellFavourite",views.dellFavourite.as_view(),name="dell_Favourite"),
 ]
 

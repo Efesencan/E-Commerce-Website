@@ -12,8 +12,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 import json
 from django.core import serializers
-from .models import Product,Category,Customer,Basket
-from .serializers import ProductSerializer, BasketSerializer
+from .models import Product,Category,Customer,Basket,Favourite
+from .serializers import ProductSerializer, BasketSerializer, FavouriteSerializer
 from datetime import datetime
 """class ObtainTokenPairWithColorView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
@@ -226,3 +226,46 @@ class updateBasket(APIView,):
             return Response(status=status.HTTP_200_OK)
 
 
+class addFavourite(APIView,):
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def post(self,request):
+        
+         if hasattr(request.user, "customer"):
+            data = json.loads(request.body.decode('utf-8'))
+            pId = Product.objects.get(pId=data["pId"])
+            cId = request.user.customer
+            favourite_object_list = Favourite.objects.filter(pId=data["pId"] ,cId=request.user.customer.cId)
+            if(len(favourite_object_list) == 0):
+                new_fav=Favourite(pId=pId ,cId=cId)
+                new_fav.save()
+            
+            return Response(status=status.HTTP_200_OK)
+            
+
+
+class dellFavourite(APIView,):
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def post(self,request):
+        
+         if hasattr(request.user, "customer"):
+            data = json.loads(request.body.decode('utf-8'))
+            pId = data["pId"]
+            cId = request.user.customer.cId
+            Favourite.objects.filter(pId=pId, cId = cId).delete()
+            
+            return Response(status=status.HTTP_200_OK)
+            
+class  seeFavourite(APIView ):
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request):
+        if hasattr(request.user, "customer"):
+            filters = {
+                    "cId":request.user.customer.cId,
+                    }
+            
+            query_set = Favourite.objects.filter( **filters )
+            serializer = FavouriteSerializer(query_set,many =True)
+           
+            return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
