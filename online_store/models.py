@@ -4,27 +4,50 @@ from django.contrib.auth.models import AbstractUser
 
 
 class Account(AbstractUser):
-    isClient          =  models.NullBooleanField(default=True)
-    isProductManager  =  models.NullBooleanField(default=False)
-    isSalesManager    =  models.NullBooleanField(default=False)
+    pass
 
 # https://docs.djangoproject.com/en/1.8/_modules/django/contrib/auth/models/
 
- 
+
+class Customer(models.Model):
+    cId       = models.AutoField(primary_key=True)
+    address   = models.CharField(max_length=500, null=True)
+    taxNumber = models.IntegerField(null =True)
+
+    user = models.OneToOneField(
+        Account,
+        on_delete=models.CASCADE,
+    )
+
+class ProductManager:
+    user = models.OneToOneField(
+        Account,
+        on_delete=models.CASCADE,
+        primary_key=True,
+    )
+class SalesManager:
+    user = models.OneToOneField(
+        Account,
+        on_delete=models.CASCADE,
+        primary_key=True,
+    )
+
 # Create your models here.
 class Product(models.Model):
     ### Primary Key
     pId = models.AutoField(primary_key=True) 
     
     ### Table Specific Fields
-    isActive         = models.NullBooleanField()
-    quantity         = models.IntegerField()
+    #isActive         = models.NullBooleanField()
+
     price            = models.FloatField()
     oldPrice         = models.FloatField()
     stock            = models.IntegerField()  
     imgSrc           = models.CharField(max_length=100)
-    cost             = models.FloatField()
     name             = models.CharField(max_length=50) # TEXT 
+    
+    cost             = models.FloatField()
+    
     modelNo          = models.CharField(max_length=50) # TEXT ,BV200423 universal code
     description      = models.CharField(max_length=500) # TEXT
     warrantyStatus   = models.IntegerField()
@@ -51,7 +74,7 @@ class Basket(models.Model):
     quantity       = models.IntegerField()
     totalPrice     = models.FloatField()
     purchasedDate  = models.DateField()
-    isPurchased    = models.NullBooleanField(False)
+    isPurchased    = models.NullBooleanField()
 
     class Meta:
         unique_together = (('bId', 'cId'),)
@@ -62,6 +85,7 @@ class Basket(models.Model):
         # filter by isPurchased == False
  #   def SeeMyOldPurchases ():
         #filter by isPurchased == True
+        #
         
 #        Gok p1
 #        Gok p2
@@ -82,12 +106,7 @@ class Favourite(models.Model):
     class Meta:
         unique_together = (('fId', 'cId'),)
 
-class Customer(models.Model):
-    cId       = models.AutoField(primary_key=True)
-    name      = models.CharField(max_length=50)
-    email     = models.EmailField(max_length=254)
-    address   = models.CharField(max_length=500)
-    taxNumber = models.IntegerField()
+
     #password  = forms.CharField(max_length=32, widget=forms.PasswordInput)
 
 

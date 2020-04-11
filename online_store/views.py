@@ -11,9 +11,9 @@ from .serializers import AccountSerializer,CardSerializer,CategorySerializer #,M
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 import json
-
-from .models import Product,Category
-from .serializers import ProductSerializer
+from django.core import serializers
+from .models import Product,Category,Customer,Basket
+from .serializers import ProductSerializer, BasketSerializer
 """class ObtainTokenPairWithColorView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 """
@@ -45,6 +45,11 @@ class AccountCreate(APIView):
                 return Response(data={"User":"already exist"}, status=status.HTTP_409_CONFLICT)
             else:
                 user = serializer.save()
+                customer = Customer(user=user, address=None, taxNumber=None)
+                print("aaa")
+                print(customer)
+                customer.save()
+
                 if user:
                     Tokens = get_tokens_for_user(user)
                     return Response(data=Tokens, status=status.HTTP_200_OK)
@@ -143,6 +148,55 @@ class allCategories(APIView, ):
         serializer = CategorySerializer(query_set,many =True)
         return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
 
+class  seeBasket (APIView, ):
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request):
+        if hasattr(request.user, "customer"):
+            
+            filters = {
+                    "cId":request.user.customer.cId,
+                    "isPurchased": False,
+
+                    }
+            """
+            print("-------ALL---------")
+            query_set1 = Basket.objects.all()
+            print(query_set1)
+            serializer1 = BasketSerializer(query_set1,many =True)
+            print(serializer1.data)
+            """
+
+
+            print("--------FILTERED--------")
+            query_set = Basket.objects.filter( **filters )
+           # query_set = query_set.select_related("pId").all()
+            print(query_set)
+            serialized_data = serializers.serialize('json', query_set,
+    use_natural_foreign_keys=True,use_natural_primary_keys=True)
+            print("---------LOOOK---------------")
+            print(serialized_data)
+            print("--------LOOOK-----------------")
+        # use_natural_foreign_keys=True,
+        # use_natural_primary_keys=True
+            #query_set= Basket.objects.all()
+            #print(request.user.customer.cId)
+            #print(query_set)    
+            serializer = BasketSerializer(query_set,many =True)
+            print(serializer)
+            print(serializer.data)
+
+
+            # print("--------FILTERED MANUAL--------")
+            # query_set3 = Basket.objects.filter( cId =  request.user.customer.cId , isPurchased = False )
+            # #query_set= Basket.objects.all()
+            # print(request.user.customer.cId)
+            # print(query_set3)
+            # serializer3 = BasketSerializer(query_set3,many =True)
+            # print(serializer3.data)
+
+            
+            
+            return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
 
 """
 if user is not None:

@@ -16,4 +16,5 @@ urlpatterns = [
     path('login/',views.LoginView.as_view(),name="login"),
     path("filterProduct",views.allProducts.as_view(),name="all_products"),
     path("allCategories",views.allCategories.as_view(),name="all_categories"),
+    path("seeBasket",views.seeBasket.as_view(),name="see_basket"),
 ]
