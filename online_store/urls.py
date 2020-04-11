@@ -23,5 +23,6 @@ urlpatterns = [
     path("seeFavourite",views.seeFavourite.as_view(),name="see_Favourite"),
     path("addFavourite",views.addFavourite.as_view(),name="add_Favourite"),
     path("dellFavourite",views.dellFavourite.as_view(),name="dell_Favourite"),
+    path("search",views.search.as_view(),name="search"),
 ]
 

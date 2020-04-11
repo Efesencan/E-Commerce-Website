@@ -269,3 +269,31 @@ class  seeFavourite(APIView ):
             serializer = FavouriteSerializer(query_set,many =True)
            
             return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
+
+
+
+class search(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self,request):
+        
+        data    = json.loads(request.body.decode('utf-8'))
+        text    = data["text"]
+        search1 = Product.objects.filter(name__icontains = text)
+        search2 = Product.objects.filter(description__icontains = text)
+        search3 = Product.objects.filter(disturbuterInfo__icontains = text)
+        search4 = Product.objects.filter(modelNo__icontains = text)
+        search5 = Product.objects.filter(categoryName__categoryName__icontains = text)
+        
+        search = search1|search2|search3|search4|search5
+        
+        print("****************")
+        print(search)
+        print("****************")
+
+        serializer = CardSerializer(search,many =True)
+        print("****************")
+        print(serializer.data)
+        print("****************")
+
+        return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
