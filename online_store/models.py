@@ -38,7 +38,7 @@ class Product(models.Model):
     pId = models.AutoField(primary_key=True) 
     
     ### Table Specific Fields
-    #isActive         = models.NullBooleanField()
+    isActive         = models.NullBooleanField()
 
     price            = models.FloatField()
     oldPrice         = models.FloatField()
