@@ -12,8 +12,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 import json
 from django.core import serializers
-from .models import Product,Category,Customer,Basket
-from .serializers import ProductSerializer, BasketSerializer
+from .models import Product,Category,Customer,Basket,Favourite
+from .serializers import ProductSerializer, BasketSerializer, FavouriteSerializer
+from datetime import datetime
 """class ObtainTokenPairWithColorView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 """
@@ -110,7 +111,7 @@ class SalesManagerView(APIView):
             
 
 
-class allProducts(APIView, ):
+class allProducts(APIView):
     permission_classes = (permissions.AllowAny,)
     def get(self, request):
         print( "Request: ------" ,request.GET.get("count"))
@@ -140,7 +141,7 @@ class allProducts(APIView, ):
 
 
 
-class allCategories(APIView, ):
+class allCategories(APIView ):
     permission_classes = (permissions.AllowAny,)
     def get(self, request):
        
@@ -148,59 +149,151 @@ class allCategories(APIView, ):
         serializer = CategorySerializer(query_set,many =True)
         return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
 
-class  seeBasket (APIView, ):
+class  seeBasket (APIView ):
     permission_classes = (permissions.IsAuthenticated,)
     def get(self, request):
         if hasattr(request.user, "customer"):
-            
             filters = {
                     "cId":request.user.customer.cId,
                     "isPurchased": False,
-
                     }
-            """
-            print("-------ALL---------")
-            query_set1 = Basket.objects.all()
-            print(query_set1)
-            serializer1 = BasketSerializer(query_set1,many =True)
-            print(serializer1.data)
-            """
-
-
-            print("--------FILTERED--------")
+            
             query_set = Basket.objects.filter( **filters )
-           # query_set = query_set.select_related("pId").all()
-            print(query_set)
-            serialized_data = serializers.serialize('json', query_set,
-    use_natural_foreign_keys=True,use_natural_primary_keys=True)
-            print("---------LOOOK---------------")
-            print(serialized_data)
-            print("--------LOOOK-----------------")
-        # use_natural_foreign_keys=True,
-        # use_natural_primary_keys=True
-            #query_set= Basket.objects.all()
-            #print(request.user.customer.cId)
-            #print(query_set)    
             serializer = BasketSerializer(query_set,many =True)
-            print(serializer)
-            print(serializer.data)
-
-
-            # print("--------FILTERED MANUAL--------")
-            # query_set3 = Basket.objects.filter( cId =  request.user.customer.cId , isPurchased = False )
-            # #query_set= Basket.objects.all()
-            # print(request.user.customer.cId)
-            # print(query_set3)
-            # serializer3 = BasketSerializer(query_set3,many =True)
-            # print(serializer3.data)
-
-            
-            
+           
             return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
 
-"""
-if user is not None:
-    # A backend authenticated the credentials
-else:
-    # No backend authenticated the credentials
-""" 
+
+ 
+
+class addBasket(APIView,):
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def post(self,request):
+        
+         if hasattr(request.user, "customer"):
+            data = json.loads(request.body.decode('utf-8'))
+            basket_object = { 
+            "quantity"      : data["quantity"],
+            "totalPrice"    : data["totalPrice"],
+            "pId"           : Product.objects.get(pId=data["pId"]),
+            "cId"           : request.user.customer,
+            "purchasedDate" : datetime.now(),             #NOW
+            "isPurchased"   : False
+            }
+            check_pId = Basket.objects.filter(pId=data["pId"] ,cId=request.user.customer.cId,isPurchased=False)
+            if  len(check_pId) == 0:
+                basket=Basket(**basket_object) 
+                basket.save()
+            else:
+                check_pId[0].quantity += data["quantity"]
+                check_pId[0].save()
+           
+            return Response(status=status.HTTP_200_OK)
+
+class dellBasket(APIView,):
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def post(self,request):
+        
+         if hasattr(request.user, "customer"):
+            data = json.loads(request.body.decode('utf-8'))
+            pId = data["pId"]
+            cId = request.user.customer.cId
+            Basket.objects.filter(pId=pId, cId = cId,isPurchased=False).delete()
+            
+            return Response(status=status.HTTP_200_OK)
+
+
+class updateBasket(APIView,):
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def post(self,request):
+        
+         if hasattr(request.user, "customer"):
+            data = json.loads(request.body.decode('utf-8'))
+            pId = data["pId"]
+            quantity = data["quantity"]
+            print(data["quantity"])
+            cId = request.user.customer.cId
+            basket_object_list = Basket.objects.filter(pId=data["pId"] ,cId=request.user.customer.cId,isPurchased=False)
+            print(basket_object_list)
+            basket_object = basket_object_list[0] # it has one element always
+            print(basket_object)
+            basket_object.quantity = data["quantity"]
+            basket_object.save()
+            
+            return Response(status=status.HTTP_200_OK)
+
+
+class addFavourite(APIView,):
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def post(self,request):
+        
+         if hasattr(request.user, "customer"):
+            data = json.loads(request.body.decode('utf-8'))
+            pId = Product.objects.get(pId=data["pId"])
+            cId = request.user.customer
+            favourite_object_list = Favourite.objects.filter(pId=data["pId"] ,cId=request.user.customer.cId)
+            if(len(favourite_object_list) == 0):
+                new_fav=Favourite(pId=pId ,cId=cId)
+                new_fav.save()
+            
+            return Response(status=status.HTTP_200_OK)
+            
+
+
+class dellFavourite(APIView,):
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def post(self,request):
+        
+         if hasattr(request.user, "customer"):
+            data = json.loads(request.body.decode('utf-8'))
+            pId = data["pId"]
+            cId = request.user.customer.cId
+            Favourite.objects.filter(pId=pId, cId = cId).delete()
+            
+            return Response(status=status.HTTP_200_OK)
+            
+class  seeFavourite(APIView ):
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request):
+        if hasattr(request.user, "customer"):
+            filters = {
+                    "cId":request.user.customer.cId,
+                    }
+            
+            query_set = Favourite.objects.filter( **filters )
+            serializer = FavouriteSerializer(query_set,many =True)
+           
+            return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
+
+
+
+class search(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self,request):
+        
+        data    = json.loads(request.body.decode('utf-8'))
+        text    = data["text"]
+        search1 = Product.objects.filter(name__icontains = text)
+        search2 = Product.objects.filter(description__icontains = text)
+        search3 = Product.objects.filter(disturbuterInfo__icontains = text)
+        search4 = Product.objects.filter(modelNo__icontains = text)
+        search5 = Product.objects.filter(categoryName__categoryName__icontains = text)
+        
+        search = search1|search2|search3|search4|search5
+        
+        print("****************")
+        print(search)
+        print("****************")
+
+        serializer = CardSerializer(search,many =True)
+        print("****************")
+        print(serializer.data)
+        print("****************")
+
+        return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
