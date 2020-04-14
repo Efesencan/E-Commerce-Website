@@ -45,12 +45,26 @@ class ProductSerializer(serializers.ModelSerializer):
         exclude = ['isActive','pId']
 
 
-class CardSerializer(serializers.ModelSerializer):
+class CardSerializer(serializers.ModelSerializer):   
+    # view that use this serializer:
+    #search        
+
     """ Product Model Serializer """
     class Meta:
         model = Product
         fields = ['pId','price', 'oldPrice', 'imgSrc', 'name','stock']
 
+
+class ProductDetailSerializer(serializers.ModelSerializer):
+    # view that use this serializer:
+     
+    #filterProduct 
+    #productDetail 
+    categoryName     = serializers.CharField(source ='categoryName.categoryName')
+    class Meta:
+        model = Product
+        fields = ['pId','price', 'oldPrice', 'imgSrc', 'name','stock','cost','modelNo','description','warrantyStatus','disturbuterInfo','categoryName','listedDate']
+    
 class CategorySerializer(serializers.ModelSerializer):
     """ Product Model Serializer """
     class Meta:

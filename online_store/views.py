@@ -6,7 +6,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import AccountSerializer,CardSerializer,CategorySerializer #,MyTokenObtainPairSerializer
+from .serializers import AccountSerializer,CardSerializer,CategorySerializer, ProductDetailSerializer #,MyTokenObtainPairSerializer
 
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
@@ -111,7 +111,7 @@ class SalesManagerView(APIView):
             
 
 
-class allProducts(APIView):
+class filterProduct(APIView):
     permission_classes = (permissions.AllowAny,)
     def get(self, request):
         print( "Request: ------" ,request.GET.get("count"))
@@ -136,7 +136,7 @@ class allProducts(APIView):
 
 
         #query_set = Product.objects.all()
-        serializer = CardSerializer(query_set,many =True)
+        serializer = ProductDetailSerializer(query_set,many =True)
         return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
 
 
@@ -297,3 +297,58 @@ class search(APIView):
         print("****************")
 
         return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
+
+class mainPage(APIView):
+
+    permission_classes = (permissions.AllowAny,)
+    def get(self, request):
+        
+        # filters = {
+        #         "cId":request.user.customer.cId,
+        #         "isPurchased": False,
+        #         }
+
+
+        #how to get all category names
+        categoryObjects = Category.objects.all().values("categoryName")
+        categories = [ i["categoryName"] for i in categoryObjects]
+        all_json = {}
+        item = 0
+        for category in categories:
+            query_set = Product.objects.filter(categoryName=category, isActive = True)[:8].values("pId","oldPrice","price","description","imgSrc")
+            print("************")
+            print(query_set)
+            print("************")
+            json_data = list(query_set)
+            print("************")
+            print(json_data)
+            print("************")
+            all_json[category]=json_data
+        
+
+        print("-----------------")
+        print(all_json)
+        # merge all the json at the end  
+        # send the json to thre front
+        return JsonResponse(data=all_json,safe=False, status=status.HTTP_200_OK)
+
+
+class productDetail(APIView):
+    permission_classes = (permissions.AllowAny,)
+    def get(self, request):
+        pId = request.GET.get("pId")
+        query_set = Product.objects.filter(pId = pId)
+        serializer = ProductDetailSerializer(query_set,many =True)
+        return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
+
+class userDetail(APIView):
+    permission_classes = (permissions.AllowAny,)
+    def get(self, request):
+        if hasattr(request.user, "customer"):
+            print("****************")
+            print(request.user.username)
+            print("****************")
+            return Response(data={"username":request.user.username }, status=status.HTTP_200_OK) #JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
+        #elif hasattr(request.user, "productManager"):
+        else:
+            return Response(data={"Not":Customer}, status=status.HTTP_400_BAD_REQUEST)

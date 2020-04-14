@@ -14,7 +14,7 @@ urlpatterns = [
     path('token/obtain/', jwt_views.TokenObtainPairView.as_view(), name='token_create'),  # override sjwt stock token
     path('token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
     path('login/',views.LoginView.as_view(),name="login"),
-    path("filterProduct",views.allProducts.as_view(),name="all_products"),
+    path("filterProduct",views.filterProduct.as_view(),name="filter_products"),
     path("allCategories",views.allCategories.as_view(),name="all_categories"),
     path("seeBasket",views.seeBasket.as_view(),name="see_basket"),
     path("addBasket",views.addBasket.as_view(),name="add_basket"),
@@ -24,5 +24,8 @@ urlpatterns = [
     path("addFavourite",views.addFavourite.as_view(),name="add_Favourite"),
     path("dellFavourite",views.dellFavourite.as_view(),name="dell_Favourite"),
     path("search",views.search.as_view(),name="search"),
+    path("mainPage",views.mainPage.as_view(),name="mainPage"),
+    path("productDetail",views.productDetail.as_view(),name="productDetail"),
+    path("userDetail",views.userDetail.as_view(),name="userDetail"),
 ]
 
