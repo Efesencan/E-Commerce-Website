@@ -27,5 +27,6 @@ urlpatterns = [
     path("mainPage",views.mainPage.as_view(),name="mainPage"),
     path("productDetail",views.productDetail.as_view(),name="productDetail"),
     path("userDetail",views.userDetail.as_view(),name="userDetail"),
+    path("createProduct",views.createProduct.as_view(),name="createProduct"),
 ]
 

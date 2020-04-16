@@ -352,3 +352,26 @@ class userDetail(APIView):
         #elif hasattr(request.user, "productManager"):
         else:
             return Response(data={"Not":Customer}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class createProduct(APIView):
+    permission_classes = (permissions.AllowAny,)
+    def post(self, request):
+        data = json.loads(request.body.decode('utf-8'))
+        categoryName = Category.objects.filter(categoryName =data["categoryName"])
+        if (len(categoryName)) == 1: #if category exist
+            data["categoryName"] = categoryName[0]
+            
+        else: #new category
+            newCategory = Category(categoryName = data["categoryName"], categoryIconScr ="zzzz")
+            newCategory = newCategory.save()
+            data["categoryName"] =newCategory
+        data["isActive"] = True
+        newProduct = Product(**data)
+        newProduct.save()
+        print(newProduct)
+
+        
+      
+        return Response(status=status.HTTP_200_OK)
