@@ -12,7 +12,7 @@ class Account(AbstractUser):
 class Customer(models.Model):
     cId       = models.AutoField(primary_key=True)
     address   = models.CharField(max_length=500, null=True)
-    taxNumber = models.IntegerField(null =True)
+    taxNumber = models.IntegerField(null =True)  
 
     user = models.OneToOneField(
         Account,
@@ -119,7 +119,10 @@ class Favourite(models.Model):
 
 class Invoice(models.Model):
     iId = models.AutoField(primary_key=True)
-    
+    time  = models.DateTimeField(null=True)
+
+    # we should inlcude date field
+    # store profit and loss information 
     class Meta:
         unique_together = (('iId', 'bId','dId','cId'),)
     cId = models.ForeignKey('Customer', null=True,on_delete = models.SET_NULL)

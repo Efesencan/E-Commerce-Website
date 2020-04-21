@@ -28,5 +28,6 @@ urlpatterns = [
     path("productDetail",views.productDetail.as_view(),name="productDetail"),
     path("userDetail",views.userDetail.as_view(),name="userDetail"),
     path("createProduct",views.createProduct.as_view(),name="createProduct"),
+    path("buyBasket",views.buyBasket.as_view(),name="buyBasket"),
 ]
 

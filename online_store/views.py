@@ -12,7 +12,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 import json
 from django.core import serializers
-from .models import Product,Category,Customer,Basket,Favourite
+from .models import Product,Category,Customer,Basket,Favourite,Delivery,Invoice
 from .serializers import ProductSerializer, BasketSerializer, FavouriteSerializer
 from datetime import datetime
 """class ObtainTokenPairWithColorView(TokenObtainPairView):
@@ -348,7 +348,9 @@ class userDetail(APIView):
             print("****************")
             print(request.user.username)
             print("****************")
-            return Response(data={"username":request.user.username }, status=status.HTTP_200_OK) #JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
+            return Response(data={"username":request.user.username,
+            "user_address" :  request.user.address
+                                     }, status=status.HTTP_200_OK) #JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
         #elif hasattr(request.user, "productManager"):
         else:
             return Response(data={"Not":Customer}, status=status.HTTP_400_BAD_REQUEST)
@@ -375,3 +377,71 @@ class createProduct(APIView):
         
       
         return Response(status=status.HTTP_200_OK)
+
+class buyBasket(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def post(self,request):
+        if hasattr(request.user, "customer"):
+            data     = json.loads(request.body.decode('utf-8'))
+            address  =  data["address"]
+            #user address update !
+            request.user.customer.address = address
+            request.user.customer.save()
+            
+            #delivery
+            delivery_object = { 
+            "address"      : address,
+            "IsDelivered"    : False,
+            }
+            delivery=Delivery(**delivery_object) 
+            delivery.save()
+            
+            #basket update
+            productsToBePurchased = Basket.objects.filter(cId=request.user.customer.cId,isPurchased=False)
+            print("******LIST:***********",productsToBePurchased)
+            for productToBePurchased in productsToBePurchased:
+                productToBePurchased.isPurchased = True
+                print(productToBePurchased) 
+                productToBePurchased.save()
+                #invoice
+                invoice_object = { 
+                "cId"      : request.user.customer,
+                "bId"      : productToBePurchased,
+                "dId"      : delivery,
+                "time" :    datetime.now(),   
+                }
+                invoice=Invoice(**invoice_object)
+                invoice.save() 
+
+                print("Products to be purchased: **********")
+               
+                print("**********")
+
+        return Response(status=status.HTTP_200_OK)
+
+
+                        
+"""
+            basket_object_list = Basket.objects.filter(pId=data["pId"] ,cId=request.user.customer.cId,isPurchased=False)
+            print(basket_object_list)
+            basket_object = basket_object_list[0] # it has one element always
+            print(basket_object)
+            basket_object.quantity = data["quantity"]
+            basket_object.save()
+
+           
+            
+            
+            
+
+            
+
+            check_pId = Basket.objects.filter(pId=data["pId"] ,cId=request.user.customer.cId,isPurchased=False)
+            if  len(check_pId) == 0:
+                basket=Basket(**basket_object) 
+                basket.save()
+            else:
+                check_pId[0].quantity += data["quantity"]
+                check_pId[0].save()
+           """
