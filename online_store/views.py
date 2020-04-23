@@ -15,7 +15,7 @@ from django.core import serializers
 from .models import Product,Category,Customer,Basket,Favourite,Delivery,Invoice
 from .serializers import ProductSerializer, BasketSerializer, FavouriteSerializer, InvoiceSerializerProductManager, InvoiceSerializerOrders
 from datetime import datetime
-import pdfkit
+
 """class ObtainTokenPairWithColorView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 """
