@@ -67,9 +67,15 @@ class LoginView(APIView):
         user = authenticate(username=username, password=password)
         if user is not None:
             Tokens = get_tokens_for_user(user)
-            isCustomer = hasattr(request.user, "customer")
-            isProductManager = hasattr(request.user, "productmanager")
-            isSalesManager = hasattr(request.user, "salemanager")
+            
+            isCustomer       = hasattr(user, "customer")
+            isProductManager = hasattr(user, "productmanager")
+            isSalesManager   = hasattr(user, "salesmanager")
+            print(isCustomer,isProductManager,isSalesManager)
+            Tokens["isCustomer"] = isCustomer
+            Tokens["isProductManager"] = isProductManager
+            Tokens["isSalesManager"] = isSalesManager
+
             return Response(data = Tokens,status=status.HTTP_200_OK)
         else:
             response = Response({"Error":"Not valid user"}, status=status.HTTP_400_BAD_REQUEST)
@@ -80,29 +86,6 @@ class OnlyUserView(APIView):
     def get(self, request):
             return Response(data={"You : Okay"}, status=status.HTTP_200_OK)
             
-class CustomerView(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
-    def get(self, request):
-        if request.user.isCustomer:           
-             return Response(data={"You are  : Customer"}, status=status.HTTP_200_OK)
-        else:
-            return Response(data={"Your are not : Customer"}, status=status.HTTP_400_BAD_REQUEST)
-class ProductManagerView(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
-    def get(self, request):
-        if request.user.isProductManager:           
-            return Response(data={"You are  : ProductManager"}, status=status.HTTP_200_OK)
-        else:
-            return Response(data={"Your are not : ProductManager"}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class SalesManagerView(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
-    def get(self, request):
-        if request.user.isSalesManager:           
-            return Response(data={"Your are  : SaleManager"}, status=status.HTTP_200_OK)
-        else:
-            return Response(data={"Your are not : SaleManager"}, status=status.HTTP_400_BAD_REQUEST)
             
 
 
@@ -283,14 +266,14 @@ class search(APIView):
         
         search = search1|search2|search3|search4|search5
         
-        print("****************")
-        print(search)
-        print("****************")
+        #print("****************")
+        #print(search)
+        #print("****************")
 
         serializer = CardSerializer(search,many =True)
-        print("****************")
-        print(serializer.data)
-        print("****************")
+        #print("****************")
+        #print(serializer.data)
+        #print("****************")
 
         return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
 
@@ -312,18 +295,18 @@ class mainPage(APIView):
         item = 0
         for category in categories:
             query_set = Product.objects.filter(categoryName=category, isActive = True)[:8].values("pId","oldPrice","price","description","imgSrc","name")
-            print("************")
-            print(query_set)
-            print("************")
+            #print("************")
+            #print(query_set)
+            #print("************")
             json_data = list(query_set)
-            print("************")
-            print(json_data)
-            print("************")
+            #print("************")
+            #print(json_data)
+            #print("************")
             all_json[category]=json_data
         
 
-        print("-----------------")
-        print(all_json)
+        #print("-----------------")
+        #print(all_json)
         # merge all the json at the end  
         # send the json to thre front
         return JsonResponse(data=all_json,safe=False, status=status.HTTP_200_OK)
@@ -341,9 +324,9 @@ class userDetail(APIView):
     permission_classes = (permissions.AllowAny,)
     def get(self, request):
         if hasattr(request.user, "customer"):
-            print("****************")
-            print(request.user.username)
-            print("****************")
+            #print("****************")
+            #print(request.user.username)
+            #print("****************")
             return Response(data={"username":request.user.customer.username,
             "user_address" :  request.user.address
                                      }, status=status.HTTP_200_OK) #JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
@@ -539,5 +522,25 @@ class addCategory(APIView,):
         return Response(status=status.HTTP_200_OK)
 
 class invoiceGivenRange(APIView):
-    pass 
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self,request):
+        if hasattr(request.user, "salesmanager"):
+            """
+            datetime_str = '09/19/18 13:55:26'
+            datetime_object = datetime.strptime(datetime_str, '%m/%d/%y %H:%M:%S')
+            """
+            data = json.loads(request.body.decode('utf-8'))
+            start = data["start"]
+            end = data["end"]
+            start = datetime.strptime(start, '%Y-%m-%d')
+            end   = datetime.strptime(end,   '%Y-%m-%d')
 
+            Invoices = Invoice.objects.filter(time__range=[start,end])
+            
+            serializer = InvoiceSerializerOrders(Invoices,many =True)
+            print(JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
+)
+            return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
+
+        else:
+             Response(status=status.HTTP_400_BAD_REQUEST)

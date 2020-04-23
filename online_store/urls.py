@@ -6,11 +6,6 @@ from . import views
 urlpatterns = [
     path('', views.index, name='index'),
     path('signup/', views.AccountCreate.as_view(), name="create_user"),
-    path('somecontent/', views.OnlyUserView.as_view(), name="user_access"),
-    path('ProductManagerView/', views.ProductManagerView.as_view(), name="product_manager_access"),
-    path('SalesManagerView/', views.SalesManagerView.as_view(), name="sales_manager_access"),
-    path('CustomerView/', views.CustomerView.as_view(), name="customer_access"),
- 
     path('token/obtain/', jwt_views.TokenObtainPairView.as_view(), name='token_create'),  # override sjwt stock token
     path('token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
     path('login/',views.LoginView.as_view(),name="login"),
