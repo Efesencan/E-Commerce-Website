@@ -7,7 +7,7 @@ from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import AccountSerializer,CardSerializer,CategorySerializer, ProductDetailSerializer #,MyTokenObtainPairSerializer
-
+from django.core.mail import send_mail
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 import json
@@ -15,6 +15,7 @@ from django.core import serializers
 from .models import Product,Category,Customer,Basket,Favourite,Delivery,Invoice
 from .serializers import ProductSerializer, BasketSerializer, FavouriteSerializer, InvoiceSerializerProductManager, InvoiceSerializerOrders
 from datetime import datetime
+import pdfkit
 """class ObtainTokenPairWithColorView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 """
@@ -546,9 +547,48 @@ class invoiceGivenRange(APIView):
             Invoices = Invoice.objects.filter(time__range=[start,end])
             
             serializer = InvoiceSerializerOrders(Invoices,many =True)
-            print(JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
-)
+            print(JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK))
             return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
 
         else:
              Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+def allCustomerEmails():
+    allmails = [i.user.email for i in Customer.objects.all()]
+    print(allmails)
+    return allmails
+ 
+class makeDiscount(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self,request):
+        if hasattr(request.user, "salesmanager"):
+           
+            data = json.loads(request.body.decode('utf-8'))
+            productIds = data["products"]
+            discount   = data["discount"]
+            body = ""
+            for pId in productIds:
+                product_object = Product.objects.filter(pId = pId)[0]
+                product_object.price *= 1-(discount/100)
+                product_object.save()
+                body += product_object.name + ", "
+                
+                #send mail
+            body = "Hello,\n" +body[:-2]  + " are in %" + str(discount) +" sale. Don't miss this opportunity."
+            print(body)
+            send_mail(
+                'Dino',    
+                body, # body şu ürün discount kadar indirime uğradı firsatı kaçırma 
+                'businessdinostore@gmail.com', 
+                ["gokberkyar@sabanciuniv.edu", "efesencan@sabanciuniv.edu"],
+                #allCustomerEmails(), 
+                fail_silently=True,
+            )
+            return  Response(status=status.HTTP_200_OK)
+
+        else:
+             Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+

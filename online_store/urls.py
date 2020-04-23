@@ -32,5 +32,7 @@ urlpatterns = [
     path("deleteProduct",views.deleteProduct.as_view(),name="deleteProduct"),
     path("invoiceGivenRange",views.invoiceGivenRange.as_view(),name="invoiceGivenRange"),
     path("addCategory",views.addCategory.as_view(),name="addCategory"),
+    path("makeDiscount",views.makeDiscount.as_view(),name="makeDiscount"),
+    path("createPDF",views.createPDF.as_view(),name="createPDF"),
 ]
 
