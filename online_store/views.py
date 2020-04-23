@@ -361,8 +361,16 @@ class buyBasket(APIView):
             print("******LIST:***********",productsToBePurchased)
             for productToBePurchased in productsToBePurchased:
                 productToBePurchased.isPurchased = True
+                if(productToBePurchased.pId.stock >= productToBePurchased.quantity ):
+                    productToBePurchased.pId.stock -=  productToBePurchased.quantity
+                    productToBePurchased.pId.save()
+                else:
+                    return Response(data= {"Not enough": "stock"},status=status.HTTP_400_BAD_REQUEST)
+
+        
                 print(productToBePurchased) 
                 productToBePurchased.save()
+                
                 #invoice
                 invoice_object = { 
                 "cId"      : request.user.customer,
