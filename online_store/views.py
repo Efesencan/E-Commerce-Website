@@ -322,17 +322,18 @@ class productDetail(APIView):
         return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
 
 class userDetail(APIView):
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (permissions.IsAuthenticated,)
     def get(self, request):
         if hasattr(request.user, "customer"):
             #print("****************")
             #print(request.user.username)
             #print("****************")
+            print("I enter inside")
             return Response(data={"username":request.user.customer.username,
-            "user_address" :  request.user.address
-                                     }, status=status.HTTP_200_OK) #JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
+            "user_address" :  request.user.address}, status=status.HTTP_200_OK) #JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
         #elif hasattr(request.user, "productManager"):
         else:
+            print("I enter outside")
             return Response(data={"Not":Customer}, status=status.HTTP_400_BAD_REQUEST)
 
 
