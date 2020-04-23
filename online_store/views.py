@@ -354,14 +354,15 @@ class buyBasket(APIView):
             "address"      : address,
             "IsDelivered"    : False,
             }
-            delivery=Delivery(**delivery_object) 
-            delivery.save()
+            
             
             #basket update
             productsToBePurchased = Basket.objects.filter(cId=request.user.customer.cId,isPurchased=False)
             print("******LIST:***********",productsToBePurchased)
             for productToBePurchased in productsToBePurchased:
                 productToBePurchased.isPurchased = True
+                delivery=Delivery(**delivery_object) 
+                delivery.save()
                 if(productToBePurchased.pId.stock >= productToBePurchased.quantity ):
                     productToBePurchased.pId.stock -=  productToBePurchased.quantity
                     productToBePurchased.pId.save()
