@@ -329,7 +329,7 @@ class userDetail(APIView):
             #print(request.user.username)
             #print("****************")
             print("I enter inside")
-            return Response(data={"username":request.user.customer.username,
+            return Response(data={"username":request.user.username,
             "user_address" :  request.user.address}, status=status.HTTP_200_OK) #JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
         #elif hasattr(request.user, "productManager"):
         else:
