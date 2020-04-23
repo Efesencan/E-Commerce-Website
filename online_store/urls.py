@@ -34,5 +34,8 @@ urlpatterns = [
     path("seeInvoiceProductManager",views.seeInvoiceProductManager.as_view(),name="seeInvoiceProductManager"),
     path("updateDelivery",views.updateDelivery.as_view(),name="updateDelivery"),
     path("orders",views.orders.as_view(),name="orders"),
+    path("deleteProduct",views.deleteProduct.as_view(),name="deleteProduct"),
+    path("invoiceGivenRange",views.invoiceGivenRange.as_view(),name="invoiceGivenRange"),
+    path("addCategory",views.addCategory.as_view(),name="addCategory"),
 ]
 

@@ -55,7 +55,7 @@ class Product(models.Model):
     categoryName     = models.ForeignKey('Category', null = True,on_delete = models.SET_NULL)
     listedDate       = models.DateField()
 
-class Category(models.Model):
+class Category(models.Model): # kategorinin son ürünü silindiğinde kategori de silinsin mi???
     categoryName = models.CharField(max_length=80, primary_key=True)
     categoryIconScr = models.CharField(max_length=80)
 

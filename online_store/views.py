@@ -67,6 +67,9 @@ class LoginView(APIView):
         user = authenticate(username=username, password=password)
         if user is not None:
             Tokens = get_tokens_for_user(user)
+            isCustomer = hasattr(request.user, "customer")
+            isProductManager = hasattr(request.user, "productmanager")
+            isSalesManager = hasattr(request.user, "salemanager")
             return Response(data = Tokens,status=status.HTTP_200_OK)
         else:
             response = Response({"Error":"Not valid user"}, status=status.HTTP_400_BAD_REQUEST)
@@ -245,6 +248,7 @@ class dellFavourite(APIView,):
             data = json.loads(request.body.decode('utf-8'))
             pId = data["pId"]
             cId = request.user.customer.cId
+
             Favourite.objects.filter(pId=pId, cId = cId).delete()
             
             return Response(status=status.HTTP_200_OK)
@@ -271,11 +275,11 @@ class search(APIView):
         
         data    = json.loads(request.body.decode('utf-8'))
         text    = data["text"]
-        search1 = Product.objects.filter(name__icontains = text)
-        search2 = Product.objects.filter(description__icontains = text)
-        search3 = Product.objects.filter(disturbuterInfo__icontains = text)
-        search4 = Product.objects.filter(modelNo__icontains = text)
-        search5 = Product.objects.filter(categoryName__categoryName__icontains = text)
+        search1 = Product.objects.filter(isActive = True ,name__icontains = text)
+        search2 = Product.objects.filter(isActive = True ,description__icontains = text)
+        search3 = Product.objects.filter(isActive = True ,disturbuterInfo__icontains = text)
+        search4 = Product.objects.filter(isActive = True ,modelNo__icontains = text)
+        search5 = Product.objects.filter(isActive = True ,categoryName__categoryName__icontains = text)
         
         search = search1|search2|search3|search4|search5
         
@@ -494,3 +498,46 @@ class orders(APIView):
 
         else:
              Response(status=status.HTTP_400_BAD_REQUEST)
+
+class deleteProduct(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def post(self,request):
+        
+        if hasattr(request.user, "productmanager"):
+            data = json.loads(request.body.decode('utf-8'))
+            pId = data["pId"]
+            
+            Basket.objects.filter(isPurchased=False , pId = pId).delete()
+            Favourite.objects.filter(pId=pId).delete()
+            product = Product.objects.filter(pId=pId)[0]
+            product.isActive = False
+            product.save()
+
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class addCategory(APIView,):
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def post(self,request):
+        if hasattr(request.user, "productmanager"):
+            data = json.loads(request.body.decode('utf-8'))
+            category_object = { 
+            "categoryName"      : data["categoryName"],
+            "imgSrc"            : data["imgSrc"],
+            }
+
+            
+            if  len(Category.objects.filter(categoryName = data["categoryName"] )) == 0:
+                category_object=Category(**category_object) 
+                category_object.save()
+            
+           
+        return Response(status=status.HTTP_200_OK)
+
+class invoiceGivenRange(APIView):
+    pass 
+
