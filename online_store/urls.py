@@ -10,7 +10,7 @@ urlpatterns = [
     path('ProductManagerView/', views.ProductManagerView.as_view(), name="product_manager_access"),
     path('SalesManagerView/', views.SalesManagerView.as_view(), name="sales_manager_access"),
     path('CustomerView/', views.CustomerView.as_view(), name="customer_access"),
-    path('hello/', views.HelloWorldView.as_view(), name='hello_world'),
+ 
     path('token/obtain/', jwt_views.TokenObtainPairView.as_view(), name='token_create'),  # override sjwt stock token
     path('token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
     path('login/',views.LoginView.as_view(),name="login"),
@@ -27,7 +27,12 @@ urlpatterns = [
     path("mainPage",views.mainPage.as_view(),name="mainPage"),
     path("productDetail",views.productDetail.as_view(),name="productDetail"),
     path("userDetail",views.userDetail.as_view(),name="userDetail"),
-    path("createProduct",views.createProduct.as_view(),name="createProduct"),
     path("buyBasket",views.buyBasket.as_view(),name="buyBasket"),
+
+    path("createProduct",views.createProduct.as_view(),name="createProduct"),
+    path("updateStock",views.updateStock.as_view(),name="updateStock"),
+    path("seeInvoiceProductManager",views.seeInvoiceProductManager.as_view(),name="seeInvoiceProductManager"),
+    path("updateDelivery",views.updateDelivery.as_view(),name="updateDelivery"),
+    path("orders",views.orders.as_view(),name="orders"),
 ]
 

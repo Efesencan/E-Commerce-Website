@@ -13,7 +13,7 @@ from django.contrib.auth import authenticate
 import json
 from django.core import serializers
 from .models import Product,Category,Customer,Basket,Favourite,Delivery,Invoice
-from .serializers import ProductSerializer, BasketSerializer, FavouriteSerializer
+from .serializers import ProductSerializer, BasketSerializer, FavouriteSerializer, InvoiceSerializerProductManager, InvoiceSerializerOrders
 from datetime import datetime
 """class ObtainTokenPairWithColorView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
@@ -56,15 +56,7 @@ class AccountCreate(APIView):
                     return Response(data=Tokens, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class HelloWorldView(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
-    def get(self, request):
-        if request.user.isProductManager:
-            print("AAAAAA----",request.user.isCustomer)
-            print("AAAAAA----",request.user.isProductManager)
-            return Response(data={"hello":"world"}, status=status.HTTP_200_OK)
-        else:
-            return Response(data={"Your are not a Product Manager"}, status=status.HTTP_200_OK)
+
     
 class LoginView(APIView):   
 
@@ -315,7 +307,7 @@ class mainPage(APIView):
         all_json = {}
         item = 0
         for category in categories:
-            query_set = Product.objects.filter(categoryName=category, isActive = True)[:8].values("pId","oldPrice","price","description","imgSrc")
+            query_set = Product.objects.filter(categoryName=category, isActive = True)[:8].values("pId","oldPrice","price","description","imgSrc","name")
             print("************")
             print(query_set)
             print("************")
@@ -348,7 +340,7 @@ class userDetail(APIView):
             print("****************")
             print(request.user.username)
             print("****************")
-            return Response(data={"username":request.user.username,
+            return Response(data={"username":request.user.customer.username,
             "user_address" :  request.user.address
                                      }, status=status.HTTP_200_OK) #JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
         #elif hasattr(request.user, "productManager"):
@@ -357,26 +349,6 @@ class userDetail(APIView):
 
 
 
-class createProduct(APIView):
-    permission_classes = (permissions.AllowAny,)
-    def post(self, request):
-        data = json.loads(request.body.decode('utf-8'))
-        categoryName = Category.objects.filter(categoryName =data["categoryName"])
-        if (len(categoryName)) == 1: #if category exist
-            data["categoryName"] = categoryName[0]
-            
-        else: #new category
-            newCategory = Category(categoryName = data["categoryName"], categoryIconScr ="zzzz")
-            newCategory = newCategory.save()
-            data["categoryName"] =newCategory
-        data["isActive"] = True
-        newProduct = Product(**data)
-        newProduct.save()
-        print(newProduct)
-
-        
-      
-        return Response(status=status.HTTP_200_OK)
 
 class buyBasket(APIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -409,7 +381,9 @@ class buyBasket(APIView):
                 "cId"      : request.user.customer,
                 "bId"      : productToBePurchased,
                 "dId"      : delivery,
-                "time" :    datetime.now(),   
+                "time"     : datetime.now(),
+                "cost"     : productToBePurchased.pId.cost,
+                "price"    : productToBePurchased.pId.price,   
                 }
                 invoice=Invoice(**invoice_object)
                 invoice.save() 
@@ -420,28 +394,103 @@ class buyBasket(APIView):
 
         return Response(status=status.HTTP_200_OK)
 
+class createProduct(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        data = json.loads(request.body.decode('utf-8'))
+        categoryName = Category.objects.filter(categoryName =data["categoryName"])
 
-                        
-"""
-            basket_object_list = Basket.objects.filter(pId=data["pId"] ,cId=request.user.customer.cId,isPurchased=False)
-            print(basket_object_list)
-            basket_object = basket_object_list[0] # it has one element always
-            print(basket_object)
-            basket_object.quantity = data["quantity"]
-            basket_object.save()
+        if(len(Product.objects.filter(name=data["name"]))):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if (len(categoryName)) == 1: #if category exist
+            data["categoryName"] = categoryName[0]
+            
+        else: #new category
+            categoryIconScr = data["categoryIconScr"]
+            newCategory = Category(categoryName = data["categoryName"], categoryIconScr =categoryIconScr)
+            newCategory = newCategory.save()
+            data["categoryName"] =newCategory
+        del data["categoryIconScr"]
+        data["isActive"] = True
+        newProduct = Product(**data)
+        newProduct.save()
+
+     
+        return Response(status=status.HTTP_200_OK)
+
+
+class updateStock(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def post(self,request):
+        if hasattr(request.user, "productmanager"):
+            data     = json.loads(request.body.decode('utf-8'))
+            pId  =  data["pId"]
+            stock =  data["stock"]         
+            #product update
+            productsToBePurchased = Product.objects.filter(pId=pId)
+            productsToBePurchased_object = productsToBePurchased[0]
+            productsToBePurchased_object.stock = stock
+            productsToBePurchased_object.save()
+            print("-------stock update-------")
+            return Response(status=status.HTTP_200_OK)
+
+        else:
+             Response(status=status.HTTP_400_BAD_REQUEST)
+
+class seeInvoiceProductManager(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self,request):
+        if hasattr(request.user, "productmanager"):
+
+            Invoices = Invoice.objects.all()
+            
+            serializer = InvoiceSerializerProductManager(Invoices,many =True)
+           
+            return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
+
+        else:
+             Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class updateDelivery(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def post(self,request):
+        if hasattr(request.user, "productmanager"):
+            data     = json.loads(request.body.decode('utf-8'))
+            iId  =  data["iId"]
+            deliveryStatus =  data["deliveryStatus"]         
+            #product update
+            InvoiceList= Invoice.objects.filter(iId=iId)
+            invoice  = InvoiceList[0]
+            delivery_object= invoice.dId
+            
+            IsDelivered = True   if  deliveryStatus == "True" else False
+            delivery_object.IsDelivered =  IsDelivered
+            delivery_object.save()
 
            
-            
-            
-            
+            print("-------delivery status update-------")
+            return Response(status=status.HTTP_200_OK)
 
-            
+        else:
+             Response(status=status.HTTP_400_BAD_REQUEST)
 
-            check_pId = Basket.objects.filter(pId=data["pId"] ,cId=request.user.customer.cId,isPurchased=False)
-            if  len(check_pId) == 0:
-                basket=Basket(**basket_object) 
-                basket.save()
-            else:
-                check_pId[0].quantity += data["quantity"]
-                check_pId[0].save()
-           """
+             
+class orders(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self,request):
+        if hasattr(request.user, "customer"):
+
+            cId = request.user.customer.cId
+
+            Invoices = Invoice.objects.filter(cId = cId)
+
+            serializer = InvoiceSerializerOrders(Invoices,many =True)
+           
+            return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
+
+        else:
+             Response(status=status.HTTP_400_BAD_REQUEST)

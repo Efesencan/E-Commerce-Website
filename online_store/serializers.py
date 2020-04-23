@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from .models import Account, Product,Category,Customer,Basket,Favourite
+from .models import Account, Product,Category,Customer,Basket,Favourite,Invoice,Delivery
 
 """
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -103,3 +103,23 @@ class FavouriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favourite
         fields = ['pId','name','price','categoryName','imgSrc',]
+
+class InvoiceSerializerProductManager(serializers.ModelSerializer):
+
+    address     =serializers.CharField(source='dId.address')
+    IsDelivered = serializers.NullBooleanField(source='dId.IsDelivered')
+    class Meta:
+        model = Invoice
+        fields = ['cId','bId','iId','time','IsDelivered','address',]
+
+class InvoiceSerializerOrders(serializers.ModelSerializer):
+
+    
+    IsDelivered = serializers.NullBooleanField(source='dId.IsDelivered')
+    name = serializers.CharField(source='bId.pId.name')
+    imgSrc= serializers.CharField(source='bId.pId.imgSrc')
+    pId = serializers.CharField(source='bId.pId.pId')
+
+    class Meta:
+        model = Invoice
+        fields = ['time','IsDelivered','pId','name','imgSrc','price']
