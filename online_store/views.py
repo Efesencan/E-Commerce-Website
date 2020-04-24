@@ -102,7 +102,7 @@ class filterProduct(APIView):
 
         filters = {"isActive": True}
         if theCategory != None :
-            filters["categoryName"] = theCategoy
+            filters["categoryName"] = theCategory
     
         query_set = Product.objects.filter( **filters ).order_by( order_with if order_with != None else "name" )
 
