@@ -297,7 +297,7 @@ class mainPage(APIView):
         all_json = {}
         item = 0
         for category in categories:
-            query_set = Product.objects.filter(categoryName=category, isActive = True)[:8].values("pId","oldPrice","price","description","imgSrc","name")
+            query_set = Product.objects.filter(categoryName=category, isActive = True)[:3].values("pId","oldPrice","price","description","imgSrc","name")
             #print("************")
             #print(query_set)
             #print("************")
