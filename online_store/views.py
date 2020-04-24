@@ -392,9 +392,17 @@ class buyBasket(APIView):
                 invoice.save() 
 
                 print("Products to be purchased: **********")
-               
+                body = "Dear " + str(request.user.username ) + " , \n You have successfully purchase the product :) " 
                 print("**********")
-
+                send_mail(
+                'New Purchase',    
+                body, # body şu ürün discount kadar indirime uğradı firsatı kaçırma 
+                'businessdinostore@gmail.com', 
+                [request.user.email], 
+                fail_silently=True,
+                )
+                #allCustomerEmails(), 
+                
         return Response(status=status.HTTP_200_OK)
 
 class createProduct(APIView):
