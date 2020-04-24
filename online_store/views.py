@@ -12,7 +12,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 import json
 from django.core import serializers
-from .models import Product,Category,Customer,Basket,Favourite,Delivery,Invoice
+from .models import Product,Category,Customer,Basket,Favourite,Delivery,Invoice,Order
 from .serializers import ProductSerializer, BasketSerializer, FavouriteSerializer, InvoiceSerializerProductManager, InvoiceSerializerOrders
 from datetime import datetime
 
@@ -105,6 +105,7 @@ class filterProduct(APIView):
             filters["categoryName"] = theCategory
     
         query_set = Product.objects.filter( **filters ).order_by( order_with if order_with != None else "name" )
+
         
         
         if option == "False":
@@ -138,8 +139,9 @@ class  seeBasket (APIView ):
                     }
             
             query_set = Basket.objects.filter( **filters )
+            print(query_set)
             serializer = BasketSerializer(query_set,many =True)
-           
+            print(serializer)
             return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
 
 
@@ -355,20 +357,22 @@ class buyBasket(APIView):
             "address"      : address,
             "IsDelivered"    : False,
             }
-            
-            
             #basket update
             productsToBePurchased = Basket.objects.filter(cId=request.user.customer.cId,isPurchased=False)
             print("******LIST:***********",productsToBePurchased)
+
+            #here 
+            order = Order()
+            order.save()
             for productToBePurchased in productsToBePurchased:
                 productToBePurchased.isPurchased = True
                 delivery=Delivery(**delivery_object) 
                 delivery.save()
-                if(productToBePurchased.pId.stock >= productToBePurchased.quantity ):
-                    productToBePurchased.pId.stock -=  productToBePurchased.quantity
-                    productToBePurchased.pId.save()
-                else:
-                    return Response(data= {"Not enough": "stock"},status=status.HTTP_400_BAD_REQUEST)
+                #if(productToBePurchased.pId.stock >= productToBePurchased.quantity ):
+                #    productToBePurchased.pId.stock -=  productToBePurchased.quantity
+                #    productToBePurchased.pId.save()
+                #else:
+                #    return Response(data= {"Not enough": "stock"},status=status.HTTP_400_BAD_REQUEST)
 
         
                 print(productToBePurchased) 
@@ -381,7 +385,8 @@ class buyBasket(APIView):
                 "dId"      : delivery,
                 "time"     : datetime.now(),
                 "cost"     : productToBePurchased.pId.cost,
-                "price"    : productToBePurchased.pId.price,   
+                "price"    : productToBePurchased.pId.price,
+                "oId"      : order,   
                 }
                 invoice=Invoice(**invoice_object)
                 invoice.save() 
@@ -490,17 +495,27 @@ class updateDelivery(APIView):
              
 class orders(APIView):
     permission_classes = (permissions.IsAuthenticated,)
-    def get(self,request):
+    def post(self,request):
         if hasattr(request.user, "customer"):
+            data     = json.loads(request.body.decode('utf-8'))
+            
 
             cId = request.user.customer.cId
 
             Invoices = Invoice.objects.filter(cId = cId)
-
-            serializer = InvoiceSerializerOrders(Invoices,many =True)
-           
-            return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
-
+            if "mobile" in data:
+                data = {}
+                for invoice in Invoices:
+                    if str(invoice.oId.oId) not in data:
+                        data[str(invoice.oId.oId)] = dict ()
+                        data[str(invoice.oId.oId)]["time"] = invoice.time
+                        data[str(invoice.oId.oId)]["items"] = [{"pId" : invoice.bId.pId.pId, "quantity": invoice.bId.quantity, "price": invoice.price}]
+                    else:
+                        data[str(invoice.oId.oId)]["items"].append({"pId" : invoice.bId.pId.pId, "quantity": invoice.bId.quantity, "price": invoice.price}) 
+                return Response(data = data , status=status.HTTP_200_OK)
+            else:
+                serializer = InvoiceSerializerOrders(Invoices,many =True)
+                return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
         else:
              Response(status=status.HTTP_400_BAD_REQUEST)
 

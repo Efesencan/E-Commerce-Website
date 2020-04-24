@@ -122,6 +122,7 @@ class Invoice(models.Model):
     cost  = models.FloatField(null = True)
     iId = models.AutoField(primary_key=True)
     time  = models.DateTimeField(null=True)
+    
 
     # we should inlcude date field
     # store profit and loss information 
@@ -130,4 +131,8 @@ class Invoice(models.Model):
     cId = models.ForeignKey('Customer', null=True,on_delete = models.SET_NULL)
     bId = models.ForeignKey('Basket', null = True,on_delete = models.SET_NULL) ##### değiştirsek 
     dId = models.ForeignKey('Delivery', null = True,on_delete = models.SET_NULL)
+
+    oId = models.ForeignKey('Order', null = True,on_delete = models.SET_NULL)
     
+class Order(models.Model):
+    oId = models.AutoField(primary_key=True)
