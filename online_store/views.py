@@ -424,14 +424,25 @@ class updateStock(APIView):
     def post(self,request):
         if hasattr(request.user, "productmanager"):
             data     = json.loads(request.body.decode('utf-8'))
-            pId  =  data["pId"]
-            stock =  data["stock"]         
-            #product update
-            productsToBePurchased = Product.objects.filter(pId=pId)
-            productsToBePurchased_object = productsToBePurchased[0]
-            productsToBePurchased_object.stock = stock
-            productsToBePurchased_object.save()
-            print("-------stock update-------")
+            if "pId" in data:
+                pId  =  data["pId"]
+                stock =  data["stock"]         
+                #product update
+                productsToBePurchased = Product.objects.filter(pId=pId)
+                productsToBePurchased_object = productsToBePurchased[0]
+                productsToBePurchased_object.stock = stock
+                productsToBePurchased_object.save()
+                print("-------stock update-------")
+            elif "name" in data:
+                name  =  data["name"]
+                stock =  data["stock"]         
+                #product update
+                productsToBePurchased = Product.objects.filter(name=name)
+                productsToBePurchased_object = productsToBePurchased[0]
+                productsToBePurchased_object.stock = stock
+                productsToBePurchased_object.save()
+            else:
+                return Response(data= {"not correct api parameters you can either send name or pId with stock":"BE CAREFUL "},status=status.HTTP_400_BAD_REQUEST)
             return Response(status=status.HTTP_200_OK)
 
         else:
@@ -500,14 +511,22 @@ class deleteProduct(APIView):
         
         if hasattr(request.user, "productmanager"):
             data = json.loads(request.body.decode('utf-8'))
-            pId = data["pId"]
+            
+            if "pId" in data:
+                pId = data["pId"]
+                
+            elif "name" in data:
+                name = data["name"]
+                pId = Product.objects.filter(name = name)[0].pId
+                #print(pId)
+            else:
+                return Response(data= {"not correct api parameters you can either send name or pId ":"BE CAREFUL "},status=status.HTTP_400_BAD_REQUEST)
             
             Basket.objects.filter(isPurchased=False , pId = pId).delete()
             Favourite.objects.filter(pId=pId).delete()
             product = Product.objects.filter(pId=pId)[0]
             product.isActive = False
             product.save()
-
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -590,7 +609,7 @@ class makeDiscount(APIView):
             return  Response(status=status.HTTP_200_OK)
 
         else:
-             Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 
