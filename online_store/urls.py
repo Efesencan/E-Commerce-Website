@@ -36,6 +36,9 @@ urlpatterns = [
     path("addRating",views.addRating.as_view(),name="addRating"),
     path("reviewRating",views.reviewRating.as_view(),name="reviewRating"),
     path("seeRating",views.seeRating.as_view(),name="seeRating"),
+    path("deleteRating",views.deleteRating.as_view(),name="deleteRating"),
+    path("seeMyRating",views.seeMyRating.as_view(),name="seeMyRating"),
+    path("approvalList",views.approvalList.as_view(),name="approvalList"),
  
 ]
 

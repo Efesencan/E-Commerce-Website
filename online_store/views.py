@@ -13,7 +13,7 @@ from django.contrib.auth import authenticate
 import json
 from django.core import serializers
 from .models import Product,Category,Customer,Basket,Favourite,Delivery,Invoice,Order, Rating
-from .serializers import ProductSerializer, BasketSerializer, FavouriteSerializer, InvoiceSerializerProductManager, InvoiceSerializerOrders,RatingSerializer
+from .serializers import ProductSerializer, BasketSerializer, FavouriteSerializer, InvoiceSerializerProductManager, InvoiceSerializerOrders,RatingSerializer,MyRatingSerializer,ApprovalListSerializer
 from datetime import datetime
 
 """class ObtainTokenPairWithColorView(TokenObtainPairView):
@@ -677,7 +677,7 @@ class reviewRating(APIView):
             
             return Response(status=status.HTTP_200_OK)
         else:
-            return Response(status=status.HTTP_400_BAD_REQUEST),
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class seeRating(APIView):
     permission_classes = (permissions.AllowAny,)
@@ -690,4 +690,38 @@ class seeRating(APIView):
             
         return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
 
-    
+class deleteRating(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self,request):
+        if hasattr(request.user, "customer"):
+            data = json.loads(request.body.decode('utf-8'))
+            rId  = data["rId"]
+            Rating.objects.filter(rId=rId)[0].delete()
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+class seeMyRating(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self,request):
+        if hasattr(request.user, "customer"):
+            
+            query = Rating.objects.filter(cId = request.user.customer.cId)
+            serializer = MyRatingSerializer(query,many =True)
+            
+            return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
+
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+ 
+class approvalList(APIView):   
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self,request):
+        if hasattr(request.user, "productmanager"):
+            
+            query = Rating.objects.filter(waitingForApproval = True)
+            serializer = ApprovalListSerializer(query,many =True)
+            
+            return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)

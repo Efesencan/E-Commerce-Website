@@ -132,3 +132,16 @@ class RatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rating
         fields = ['rating','commentbody','commentHeader','commentOwner']
+
+class MyRatingSerializer(serializers.ModelSerializer):
+    productName = serializers.CharField(source='pId.name')
+    class Meta:
+        model = Rating
+        fields = ['rating','commentbody','commentHeader','waitingForApproval','Approved','productName']
+
+
+class ApprovalListSerializer(serializers.ModelSerializer):
+    productName = serializers.CharField(source='pId.name')
+    class Meta:
+        model = Rating
+        fields = ['rating','commentbody','commentHeader','productName']
