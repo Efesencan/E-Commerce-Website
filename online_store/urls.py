@@ -33,6 +33,9 @@ urlpatterns = [
     path("invoiceGivenRange",views.invoiceGivenRange.as_view(),name="invoiceGivenRange"),
     path("addCategory",views.addCategory.as_view(),name="addCategory"),
     path("makeDiscount",views.makeDiscount.as_view(),name="makeDiscount"),
+    path("addRating",views.addRating.as_view(),name="addRating"),
+    path("reviewRating",views.reviewRating.as_view(),name="reviewRating"),
+    path("seeRating",views.seeRating.as_view(),name="seeRating"),
  
 ]
 

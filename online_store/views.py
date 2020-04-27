@@ -12,8 +12,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 import json
 from django.core import serializers
-from .models import Product,Category,Customer,Basket,Favourite,Delivery,Invoice,Order
-from .serializers import ProductSerializer, BasketSerializer, FavouriteSerializer, InvoiceSerializerProductManager, InvoiceSerializerOrders
+from .models import Product,Category,Customer,Basket,Favourite,Delivery,Invoice,Order, Rating
+from .serializers import ProductSerializer, BasketSerializer, FavouriteSerializer, InvoiceSerializerProductManager, InvoiceSerializerOrders,RatingSerializer
 from datetime import datetime
 
 """class ObtainTokenPairWithColorView(TokenObtainPairView):
@@ -591,7 +591,7 @@ class invoiceGivenRange(APIView):
             Invoices = Invoice.objects.filter(time__range=[start,end])
             
             serializer = InvoiceSerializerOrders(Invoices,many =True)
-            print(JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK))
+            #print(JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK))
             return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
 
         else:
@@ -635,4 +635,57 @@ class makeDiscount(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
+class addRating(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self,request):
+        if hasattr(request.user, "customer"):
+           
+            data = json.loads(request.body.decode('utf-8'))
 
+            rating_fields = {
+            "commentHeader"      : data["commentHeader"],
+            "commentbody"        : data["commentbody"],
+            "rating"             : data["rating"],
+            "pId"                : Product.objects.filter(pId = data["pId"])[0],  #product object
+            "cId"           : request.user.customer,
+            "waitingForApproval" : True,
+            "Approved"           : False,
+            }
+            
+            rating_object = Rating(**rating_fields)
+            rating_object.save()
+            return  Response(status=status.HTTP_200_OK)
+
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+class reviewRating(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self,request):
+        if hasattr(request.user, "productmanager"):
+            data = json.loads(request.body.decode('utf-8'))
+            
+            rId            = data["rId"]
+            Approved       = data["approvalStatus"]
+    
+            rating_object = Rating.objects.filter(rId=rId)[0]
+            rating_object.waitingForApproval = False
+            rating_object.Approved    = Approved 
+            rating_object.save()
+            
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST),
+
+class seeRating(APIView):
+    permission_classes = (permissions.AllowAny,)
+    def post(self,request):
+        data = json.loads(request.body.decode('utf-8'))
+        pId            = data["pId"]
+        pageNo         = data["pageNo"]
+        query= Rating.objects.filter(pId = pId)[(pageNo-1) * 5 : (pageNo) * 5]
+        serializer = RatingSerializer(query,many =True)
+            
+        return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
+
+    

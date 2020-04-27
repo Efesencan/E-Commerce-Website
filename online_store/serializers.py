@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from .models import Account, Product,Category,Customer,Basket,Favourite,Invoice,Delivery
+from .models import Account, Product,Category,Customer,Basket,Favourite,Invoice,Delivery,Rating
 
 """
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -123,3 +123,12 @@ class InvoiceSerializerOrders(serializers.ModelSerializer):
     class Meta:
         model = Invoice
         fields = ['time','IsDelivered','pId','name','imgSrc','price']
+
+class RatingSerializer(serializers.ModelSerializer):
+
+    commentOwner = serializers.CharField(source='cId.user.username')
+    
+
+    class Meta:
+        model = Rating
+        fields = ['rating','commentbody','commentHeader','commentOwner']

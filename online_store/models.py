@@ -136,3 +136,29 @@ class Invoice(models.Model):
     
 class Order(models.Model):
     oId = models.AutoField(primary_key=True)
+
+class Rating(models.Model):
+    rId                 = models.AutoField(primary_key=True)
+    pId                 = models.ForeignKey('Product', null=True,on_delete = models.SET_NULL)
+    cId                 = models.ForeignKey('Customer', null=True,on_delete = models.SET_NULL)
+    rating              = models.IntegerField(null = True)
+    commentbody         = models.CharField(max_length=200,null = True)
+    commentHeader       = models.CharField(max_length=60,null = True)
+    waitingForApproval  = models.NullBooleanField() # set True when a customer make a rating, set false when product manager
+                                                    # makes a decision
+    Approved            = models.NullBooleanField() # set True when product manager approves the rating
+                                                    # false means comment is rejected
+
+#customer
+#see my Ratings that wait for approval
+
+#Product Manager
+#see approvalList
+#approve/reject Rating
+
+#product
+#see Rating
+#add Rating
+#delete Rating
+
+
