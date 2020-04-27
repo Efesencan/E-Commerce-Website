@@ -517,9 +517,11 @@ class orders(APIView):
                     if str(invoice.oId.oId) not in data:
                         data[str(invoice.oId.oId)] = dict ()
                         data[str(invoice.oId.oId)]["time"] = invoice.time
-                        data[str(invoice.oId.oId)]["items"] = [{"pId" : invoice.bId.pId.pId, "quantity": invoice.bId.quantity, "price": invoice.price, "name": invoice.bId.pId.name}]
+                        data[str(invoice.oId.oId)]["totalPrice"] = invoice.price * invoice.bId.quantity
+                        data[str(invoice.oId.oId)]["items"] = [{"pId" : invoice.bId.pId.pId, "quantity": invoice.bId.quantity, "price": invoice.price, "name": invoice.bId.pId.name, "isDelivered":invoice.dId.IsDelivered}]
                     else:
-                        data[str(invoice.oId.oId)]["items"].append({"pId" : invoice.bId.pId.pId, "quantity": invoice.bId.quantity, "price": invoice.price,"name": invoice.bId.pId.name}) 
+                        data[str(invoice.oId.oId)]["items"].append({"pId" : invoice.bId.pId.pId, "quantity": invoice.bId.quantity, "price": invoice.price,"name": invoice.bId.pId.name, "isDelivered":invoice.dId.IsDelivered})
+                        data[str(invoice.oId.oId)]["totalPrice"] += invoice.price * invoice.bId.quantity
                 return Response(data = data , status=status.HTTP_200_OK)
             else:
                 serializer = InvoiceSerializerOrders(Invoices,many =True)
