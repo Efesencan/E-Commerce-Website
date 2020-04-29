@@ -290,7 +290,7 @@ class mainPage(APIView):
         #         "isPurchased": False,
         #         }
 
-
+        
         #how to get all category names
         categoryObjects = Category.objects.all().values("categoryName")
         categories = [ i["categoryName"] for i in categoryObjects]

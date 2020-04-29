@@ -11,13 +11,28 @@ class Account(AbstractUser):
 
 class Customer(models.Model):
     cId       = models.AutoField(primary_key=True)
-    address   = models.CharField(max_length=500, null=True)
+   # address   = models.CharField(max_length=500, null=True)
     taxNumber = models.IntegerField(null =True)  
 
     user = models.OneToOneField(
         Account,
         on_delete=models.CASCADE,
     )
+
+class Address(models.Model):
+
+    customer = models.ForeignKey('Customer', null = True,on_delete = models.SET_NULL,related_name="Address")
+    address  = models.CharField(max_length=200, null=True)
+
+    def __str__(self):
+        return '%s' % ( self.address)
+    
+class Images(models.Model):
+    product = models.ForeignKey('Product', null = True,on_delete = models.SET_NULL,related_name="images")
+    imgSrc  = models.CharField(max_length=200, null=True)
+    
+    def __str__(self):
+        return '%s' % (self.imgSrc)
 
 class ProductManager(models.Model):
     user = models.OneToOneField(
@@ -161,4 +176,20 @@ class Rating(models.Model):
 #add Rating
 #delete Rating
 
+
+
+
+#c1  #customer1 
+#c1  #customer2 
+#c2  #customer2 
+#c2  #customer4 
+
+
+#[c1:sport > c2:electronic > c3:pets > c4 > c5]
+
+
+#c1 : yaşı 25 küçüklere sport göster 
+
+#c1 #customer1 
+#c1 #customer2 
 

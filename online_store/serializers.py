@@ -61,9 +61,10 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     #filterProduct 
     #productDetail 
     categoryName     = serializers.CharField(source ='categoryName.categoryName')
+    images           = serializers.StringRelatedField(many=True)
     class Meta:
         model = Product
-        fields = ['pId','price', 'oldPrice', 'imgSrc', 'name','stock','cost','modelNo','description','warrantyStatus','disturbuterInfo','categoryName','listedDate']
+        fields = ['pId','price', 'oldPrice', 'imgSrc', 'name','stock','cost','modelNo','description','warrantyStatus','disturbuterInfo','categoryName','listedDate','images']
     
 class CategorySerializer(serializers.ModelSerializer):
     """ Product Model Serializer """
