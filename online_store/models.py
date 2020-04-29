@@ -30,7 +30,7 @@ class Address(models.Model):
 class Images(models.Model):
     product = models.ForeignKey('Product', null = True,on_delete = models.SET_NULL,related_name="images")
     imgSrc  = models.CharField(max_length=200, null=True)
-    
+
     def __str__(self):
         return '%s' % (self.imgSrc)
 

@@ -12,7 +12,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 import json
 from django.core import serializers
-from .models import Product,Category,Customer,Basket,Favourite,Delivery,Invoice,Order, Rating
+from .models import Product,Category,Customer,Basket,Favourite,Delivery,Invoice,Order, Rating,Address
 from .serializers import ProductSerializer, BasketSerializer, FavouriteSerializer, InvoiceSerializerProductManager, InvoiceSerializerOrders,RatingSerializer,MyRatingSerializer,ApprovalListSerializer
 from datetime import datetime
 
@@ -723,5 +723,39 @@ class approvalList(APIView):
             serializer = ApprovalListSerializer(query,many =True)
             
             return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class addAddress(APIView,):
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def post(self,request):
+        if hasattr(request.user, "customer"):
+            data = json.loads(request.body.decode('utf-8'))
+            customer_object  = request.user.customer
+            address          = data["address"]
+            address_object = { 
+                "customer" : customer_object,
+                "address"  :  address
+            }
+            address_object = Address(**address_object)
+            address_object.save()
+
+            
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+class deleteAddress(APIView,):
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def post(self,request):
+        if hasattr(request.user, "customer"):
+            data = json.loads(request.body.decode('utf-8'))
+                   
+            Address.objects.filter(customer = request.user.customer.cId,address = data["address"])[0].delete()
+                      
+            return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)

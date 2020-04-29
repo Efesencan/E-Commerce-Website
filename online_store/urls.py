@@ -39,7 +39,8 @@ urlpatterns = [
     path("deleteRating",views.deleteRating.as_view(),name="deleteRating"),
     path("seeMyRating",views.seeMyRating.as_view(),name="seeMyRating"),
     path("approvalList",views.approvalList.as_view(),name="approvalList"),
- 
+    path("addAddress",views.addAddress.as_view(),name="addAddress"),
+    path("deleteAddress",views.deleteAddress.as_view(),name="deleteAddress"),
 ]
 
 

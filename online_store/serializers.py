@@ -146,3 +146,6 @@ class ApprovalListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rating
         fields = ['rating','commentbody','commentHeader','productName']
+
+
+
