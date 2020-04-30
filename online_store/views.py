@@ -688,8 +688,7 @@ class seeRating(APIView):
     def post(self,request):
         data = json.loads(request.body.decode('utf-8'))
         pId            = data["pId"]
-        pageNo         = data["pageNo"]
-        query= Rating.objects.filter(pId = pId)[(pageNo-1) * 5 : (pageNo) * 5]
+        query= Rating.objects.filter(pId = pId)
         serializer = RatingSerializer(query,many =True)
             
         return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
