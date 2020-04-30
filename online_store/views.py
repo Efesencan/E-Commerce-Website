@@ -770,12 +770,11 @@ class seeMyAddress(APIView,):
         if hasattr(request.user, "customer"):
             x = request.user.customer.myAddress.all()
             
-            data = {}
-            base = "address"
-            counter =1 
+            data = []
+           # base = "address"
+           # counter =1 
             for i in x:
-                data[base+str(counter)] = str(i)
-                counter += 1
+                data.append(str(i))
             #print(data)
             return Response(data = data,status=status.HTTP_200_OK)      
         else:
