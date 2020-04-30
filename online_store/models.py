@@ -21,7 +21,7 @@ class Customer(models.Model):
 
 class Address(models.Model):
 
-    customer = models.ForeignKey('Customer', null = True,on_delete = models.SET_NULL,related_name="Address")
+    customer = models.ForeignKey('Customer', null = True,on_delete = models.SET_NULL,related_name="myAddress")
     address  = models.CharField(max_length=200, null=True)
 
     def __str__(self):
@@ -163,7 +163,12 @@ class Rating(models.Model):
                                                     # makes a decision
     Approved            = models.NullBooleanField() # set True when product manager approves the rating
                                                     # false means comment is rejected
-
+class Coupon(models.Model):
+    couponId     = models.AutoField(primary_key=True)
+    discountRate = models.FloatField(null = True)
+    cId          = models.ForeignKey('Customer', null=True,on_delete = models.SET_NULL)
+    couponName   = models.CharField(max_length=60,null = True)
+    
 #customer
 #see my Ratings that wait for approval
 

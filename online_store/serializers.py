@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from .models import Account, Product,Category,Customer,Basket,Favourite,Invoice,Delivery,Rating
+from .models import Account, Product,Category,Customer,Basket,Favourite,Invoice,Delivery,Rating,Address
 
 """
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -76,7 +76,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class BasketSerializer (serializers.ModelSerializer):
     
     name             = serializers.CharField(source='pId.name')
-    price            = serializers.FloatField(source='pId.price')
+    price            = serializers.FloatField(source='totalPrice')  
     description      = serializers.CharField(source = 'pId.description')
     imgSrc           = serializers.CharField(source='pId.imgSrc')
     modelNo          = serializers.CharField(source='pId.modelNo') # TEXT ,BV200423 universal code
@@ -149,3 +149,8 @@ class ApprovalListSerializer(serializers.ModelSerializer):
 
 
 
+class SeeMyAddressSerializer(serializers.ModelSerializer):
+    myAddress  = serializers.StringRelatedField(many=True)
+    class Meta:
+        model = Customer
+        fields = ['myAddress']

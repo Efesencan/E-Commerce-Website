@@ -12,8 +12,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 import json
 from django.core import serializers
-from .models import Product,Category,Customer,Basket,Favourite,Delivery,Invoice,Order, Rating,Address
-from .serializers import ProductSerializer, BasketSerializer, FavouriteSerializer, InvoiceSerializerProductManager, InvoiceSerializerOrders,RatingSerializer,MyRatingSerializer,ApprovalListSerializer
+from .models import Product,Category,Customer,Basket,Favourite,Delivery,Invoice,Order, Rating,Address,Coupon
+from .serializers import ProductSerializer, BasketSerializer, FavouriteSerializer, InvoiceSerializerProductManager, InvoiceSerializerOrders,RatingSerializer,MyRatingSerializer,ApprovalListSerializer,SeeMyAddressSerializer
 from datetime import datetime
 
 """class ObtainTokenPairWithColorView(TokenObtainPairView):
@@ -42,12 +42,16 @@ class AccountCreate(APIView):
         serializer = AccountSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.validated_data["username"]
+            data2 = serializer.validated_data["email"]
             duplicate_users = Account.objects.filter(username=data)
+            duplicate_email = Account.objects.filter(email = data2)
             if(duplicate_users):
                 return Response(data={"User":"already exist"}, status=status.HTTP_409_CONFLICT)
+            elif(duplicate_email):
+                return Response(data={"Email":"already exist"}, status=status.HTTP_409_CONFLICT)
             else:
                 user = serializer.save()
-                customer = Customer(user=user, address=None, taxNumber=None)
+                customer = Customer(user=user,  taxNumber=None)
                 print("aaa")
                 print(customer)
                 customer.save()
@@ -385,7 +389,7 @@ class buyBasket(APIView):
                 "dId"      : delivery,
                 "time"     : datetime.now(),
                 "cost"     : productToBePurchased.pId.cost,
-                "price"    : productToBePurchased.pId.price,
+                "price"    : productToBePurchased.totalPrice,
                 "oId"      : order,   
                 }
                 invoice=Invoice(**invoice_object)
@@ -759,3 +763,122 @@ class deleteAddress(APIView,):
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class seeMyAddress(APIView,):
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self,request):
+        if hasattr(request.user, "customer"):
+            x = request.user.customer.myAddress.all()
+            
+            data = {}
+            base = "address"
+            counter =1 
+            for i in x:
+                data[base+str(counter)] = str(i)
+                counter += 1
+            #print(data)
+            return Response(data = data,status=status.HTTP_200_OK)      
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+class updateAddress(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self,request):
+        if hasattr(request.user, "customer"):
+            data = json.loads(request.body.decode('utf-8'))
+            customer_object  = request.user.customer
+            oldAddress          = data["oldAddress"]
+            newAddress          = data["newAddress"]
+         
+            address_object = Address.objects.filter(customer =customer_object.cId, address=oldAddress )[0]
+            address_object.address = newAddress
+            address_object.save()
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class changePassword(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self,request):
+        data = json.loads(request.body.decode('utf-8'))
+        oldPassword = data["oldPassword"]
+        newPassword = data["newPassword"]
+        username    = request.user.username
+
+        user = authenticate(username=username, password=oldPassword)
+        if user is not None:
+            user.set_password(newPassword)
+            user.save()
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class changeEmail(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self,request):
+        data = json.loads(request.body.decode('utf-8'))
+        
+        newEmail= data["newEmail"]
+        
+        duplicate_email = Account.objects.filter(email=newEmail)
+        if(duplicate_email):
+            return Response(data={"Email":"already exist"},status=status.HTTP_409_CONFLICT)
+        else:
+            request.user.email = newEmail
+            request.user.save()
+            return Response(status=status.HTTP_200_OK)
+       
+
+
+class createCoupon(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        if hasattr(request.user, "salesmanager"):
+            data = json.loads(request.body.decode('utf-8'))
+            quantity =  data["quantity"] 
+            couponName = data["couponName"]
+            discountRate = data["discountRate"]
+            for i in range(quantity):
+                coupon_object = Coupon(couponName = couponName, discountRate = discountRate, cId = None)
+                coupon_object.save()
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+class useCoupon(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        if hasattr(request.user, "customer"):
+            data = json.loads(request.body.decode('utf-8'))
+            couponName = data["couponName"]
+            coupon_object = Coupon.objects.filter(couponName = couponName,cId = request.user.customer.cId)
+            if len(coupon_object):
+                #user used that coupon
+                return Response(data={"You":"already used this coupon"},status=status.HTTP_409_CONFLICT)
+            else:
+                coupon_object = Coupon.objects.filter(couponName = couponName)
+                if len(coupon_object):
+                    coupon_object = Coupon.objects.filter(couponName = couponName,cId =None)
+                    if len(coupon_object):
+                    #make discount
+                        customer = request.user.customer
+                        coupon_object = coupon_object[0] 
+                        discountRate = coupon_object.discountRate
+                        basket_objects = Basket.objects.filter(cId = customer.cId, isPurchased= False)
+                        for basket in basket_objects:
+                            basket.totalPrice *=  1-(discountRate/100)
+                            basket.totalPrice = format(basket.totalPrice, '.2f')
+                            basket.save()
+                        coupon_object.cId = customer
+                        coupon_object.save()
+                    else:
+                        #all coupons used
+                        return Response(data={"UNFORTUNATELY": "ALL COUPONS WERE USED"},status=status.HTTP_428_PRECONDITION_REQUIRED)
+                else:
+                     return Response(data={"There":"does not exist such coupon"},status=status.HTTP_404_NOT_FOUND)
+               
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+

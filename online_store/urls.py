@@ -41,6 +41,13 @@ urlpatterns = [
     path("approvalList",views.approvalList.as_view(),name="approvalList"),
     path("addAddress",views.addAddress.as_view(),name="addAddress"),
     path("deleteAddress",views.deleteAddress.as_view(),name="deleteAddress"),
+    path("seeMyAddress",views.seeMyAddress.as_view(),name="seeMyAddress"),
+    path("updateAddress",views.updateAddress.as_view(),name="updateAddress"),
+    path("changePassword",views.changePassword.as_view(),name="changePassword"),
+    path("changeEmail",views.changeEmail.as_view(),name="changeEmail"),
+    path("createCoupon",views.createCoupon.as_view(),name="createCoupon"),
+    path("useCoupon",views.useCoupon.as_view(),name="useCoupon"),
 ]
+
 
 
