@@ -72,7 +72,11 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         return len(Rating.objects.filter(pId = obj.pId))
 
     def get_avgRating(self,obj):
-        return int(Rating.objects.filter(pId = obj.pId).aggregate(Avg('rating'))["rating__avg"])
+        x= (Rating.objects.filter(pId = obj.pId).aggregate(Avg('rating'))["rating__avg"])
+        if x is not None:
+            return int(x)
+        else:
+            return 0
 class CategorySerializer(serializers.ModelSerializer):
     """ Product Model Serializer """
     class Meta:
