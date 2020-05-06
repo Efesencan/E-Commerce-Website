@@ -20,7 +20,7 @@ class Customer(models.Model):
     )
 
 class Address(models.Model):
-
+    aId       = models.AutoField(primary_key=True,null = False)
     customer = models.ForeignKey('Customer', null = True,on_delete = models.SET_NULL,related_name="myAddress")
     address  = models.CharField(max_length=200, null=True)
 

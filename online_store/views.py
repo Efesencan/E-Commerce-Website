@@ -13,7 +13,7 @@ from django.contrib.auth import authenticate
 import json
 from django.core import serializers
 from .models import Product,Category,Customer,Basket,Favourite,Delivery,Invoice,Order, Rating,Address,Coupon
-from .serializers import ProductSerializer, BasketSerializer, FavouriteSerializer, InvoiceSerializerProductManager, InvoiceSerializerOrders,RatingSerializer,MyRatingSerializer,ApprovalListSerializer,SeeMyAddressSerializer
+from .serializers import ProductSerializer, BasketSerializer, FavouriteSerializer, InvoiceSerializerProductManager, InvoiceSerializerOrders,RatingSerializer,MyRatingSerializer,ApprovalListSerializer,SeeMyAddressSerializer,InvoiceSerializerSaleManagerOrders,InvoiceSerializerProductManager2
 from datetime import datetime
 
 """class ObtainTokenPairWithColorView(TokenObtainPairView):
@@ -583,25 +583,29 @@ class addCategory(APIView,):
 class invoiceGivenRange(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     def post(self,request):
+        #print("-----------YESSSS--------")
         if hasattr(request.user, "salesmanager"):
             """
             datetime_str = '09/19/18 13:55:26'
             datetime_object = datetime.strptime(datetime_str, '%m/%d/%y %H:%M:%S')
             """
             data = json.loads(request.body.decode('utf-8'))
+            #print("-------------------NOOO------")
             start = data["start"]
             end = data["end"]
+            #print(start)
+            #print(end)
             start = datetime.strptime(start, '%Y-%m-%d')
             end   = datetime.strptime(end,   '%Y-%m-%d')
 
             Invoices = Invoice.objects.filter(time__range=[start,end])
             
-            serializer = InvoiceSerializerOrders(Invoices,many =True)
-            #print(JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK))
+            serializer = InvoiceSerializerSaleManagerOrders(Invoices,many =True)
+            #print(serializer.data)
             return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
 
         else:
-             Response(status=status.HTTP_400_BAD_REQUEST)
+            Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 def allCustomerEmails():
@@ -774,7 +778,7 @@ class seeMyAddress(APIView,):
            # base = "address"
            # counter =1 
             for i in x:
-                data.append(str(i))
+                data.append({"addressId": i.aId, "address":i.address})
             #print(data)
             return Response(data = data,status=status.HTTP_200_OK)      
         else:
@@ -880,3 +884,50 @@ class useCoupon(APIView):
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
+class navbarGlobals(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self,request):
+        customer = request.user.customer
+        cId = customer.cId
+        
+        numBasket = len(Basket.objects.filter(cId = cId, isPurchased = False))
+        numFav = len(Favourite.objects.filter(cId = cId))
+        data = {"numBasket" : numBasket , "numFav": numFav}
+        
+        return Response(data = data,status=status.HTTP_200_OK)
+
+class searchUser(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self,request):
+        
+        data    = json.loads(request.body.decode('utf-8'))
+        username    = data["username"]
+        cId =Account.objects.filter(username=username)[0].customer.cId
+
+        
+        if hasattr(request.user, "productmanager"):               
+            ratings =    Rating.objects.filter(cId = cId,waitingForApproval =True)
+            ratingSerializer = ApprovalListSerializer(ratings,many =True)
+            
+            
+            
+            delivery =   Invoice.objects.filter(cId = cId ,dId__IsDelivered=False)
+
+            invoiceSerializer = InvoiceSerializerProductManager2(delivery,many =True)
+            data = {"rating": ratingSerializer.data ,"invoice":invoiceSerializer.data}
+            #comment
+            #delivery   
+            
+            return Response(data = data,status=status.HTTP_200_OK)
+            
+
+
+        elif hasattr(request.user, "salesmanager"):
+            invoices = Invoice.objects.filter(cId = cId )
+            invoiceSerializer = InvoiceSerializerSaleManagerOrders(invoices,many =True)
+            data = {"invoice":invoiceSerializer.data}
+            return Response(data = data,status=status.HTTP_200_OK)
+            
+
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)

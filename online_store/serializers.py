@@ -1,7 +1,7 @@
 
 from rest_framework import serializers
 from .models import Account, Product,Category,Customer,Basket,Favourite,Invoice,Delivery,Rating,Address
-
+from django.db.models import Avg
 """
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -62,10 +62,17 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     #productDetail 
     categoryName     = serializers.CharField(source ='categoryName.categoryName')
     images           = serializers.StringRelatedField(many=True)
+    
+    numComment = serializers.SerializerMethodField()
+    avgRating = serializers.SerializerMethodField()
     class Meta:
         model = Product
-        fields = ['pId','price', 'oldPrice', 'imgSrc', 'name','stock','cost','modelNo','description','warrantyStatus','disturbuterInfo','categoryName','listedDate','images']
-    
+        fields = ['pId','price', 'oldPrice', 'imgSrc', 'name','stock','cost','modelNo','description','warrantyStatus','disturbuterInfo','categoryName','listedDate','images','numComment','avgRating']
+    def get_numComment(self,obj):
+        return len(Rating.objects.filter(pId = obj.pId))
+
+    def get_avgRating(self,obj):
+        return int(Rating.objects.filter(pId = obj.pId).aggregate(Avg('rating'))["rating__avg"])
 class CategorySerializer(serializers.ModelSerializer):
     """ Product Model Serializer """
     class Meta:
@@ -113,6 +120,15 @@ class InvoiceSerializerProductManager(serializers.ModelSerializer):
         model = Invoice
         fields = ['cId','bId','iId','time','IsDelivered','address',]
 
+class InvoiceSerializerProductManager2(serializers.ModelSerializer):
+
+    address     =serializers.CharField(source='dId.address')
+    IsDelivered = serializers.NullBooleanField(source='dId.IsDelivered')
+    productName = serializers.CharField(source='bId.pId.name')
+    class Meta:
+        model = Invoice
+        fields = ['iId','time','IsDelivered','address','productName']
+
 class InvoiceSerializerOrders(serializers.ModelSerializer):
 
     
@@ -124,6 +140,26 @@ class InvoiceSerializerOrders(serializers.ModelSerializer):
     class Meta:
         model = Invoice
         fields = ['time','IsDelivered','pId','name','imgSrc','price']
+
+class InvoiceSerializerSaleManagerOrders(serializers.ModelSerializer):
+
+    
+    IsDelivered = serializers.NullBooleanField(source='dId.IsDelivered')
+    name = serializers.CharField(source='bId.pId.name')
+    imgSrc= serializers.CharField(source='bId.pId.imgSrc')
+    pId = serializers.CharField(source='bId.pId.pId')
+    profit = serializers.SerializerMethodField()
+    price = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Invoice
+        fields = ['time','IsDelivered','pId','name','imgSrc','price','cost','profit']
+
+    def get_profit(self,obj):
+        return format(obj.price - obj.cost,'.2f')
+    
+    def get_price(self,obj):
+        return format(obj.price,'.2f')
 
 class RatingSerializer(serializers.ModelSerializer):
 
@@ -138,7 +174,7 @@ class MyRatingSerializer(serializers.ModelSerializer):
     productName = serializers.CharField(source='pId.name')
     class Meta:
         model = Rating
-        fields = ['rId','rating','commentbody','commentHeader','waitingForApproval','Approved','productName']
+        fields = ['rId','rating','commentbody','commentHeader','waitingForApproval','Approved','productName','pId']
 
 
 class ApprovalListSerializer(serializers.ModelSerializer):
