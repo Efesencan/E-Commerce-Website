@@ -158,7 +158,7 @@ class MyRatingSerializer(serializers.ModelSerializer):
     productName = serializers.CharField(source='pId.name')
     class Meta:
         model = Rating
-        fields = ['rId','rating','commentbody','commentHeader','waitingForApproval','Approved','productName']
+        fields = ['rId','rating','commentbody','commentHeader','waitingForApproval','Approved','productName','pId']
 
 
 class ApprovalListSerializer(serializers.ModelSerializer):
