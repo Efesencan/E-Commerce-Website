@@ -120,6 +120,15 @@ class InvoiceSerializerProductManager(serializers.ModelSerializer):
         model = Invoice
         fields = ['cId','bId','iId','time','IsDelivered','address',]
 
+class InvoiceSerializerProductManager2(serializers.ModelSerializer):
+
+    address     =serializers.CharField(source='dId.address')
+    IsDelivered = serializers.NullBooleanField(source='dId.IsDelivered')
+    productName = serializers.CharField(source='bId.pId.name')
+    class Meta:
+        model = Invoice
+        fields = ['iId','time','IsDelivered','address','productName']
+
 class InvoiceSerializerOrders(serializers.ModelSerializer):
 
     
