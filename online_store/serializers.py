@@ -125,6 +125,26 @@ class InvoiceSerializerOrders(serializers.ModelSerializer):
         model = Invoice
         fields = ['time','IsDelivered','pId','name','imgSrc','price']
 
+class InvoiceSerializerSaleManagerOrders(serializers.ModelSerializer):
+
+    
+    IsDelivered = serializers.NullBooleanField(source='dId.IsDelivered')
+    name = serializers.CharField(source='bId.pId.name')
+    imgSrc= serializers.CharField(source='bId.pId.imgSrc')
+    pId = serializers.CharField(source='bId.pId.pId')
+    profit = serializers.SerializerMethodField()
+    price = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Invoice
+        fields = ['time','IsDelivered','pId','name','imgSrc','price','cost','profit']
+
+    def get_profit(self,obj):
+        return format(obj.price - obj.cost,'.2f')
+    
+    def get_price(self,obj):
+        return format(obj.price,'.2f')
+
 class RatingSerializer(serializers.ModelSerializer):
 
     commentOwner = serializers.CharField(source='cId.user.username')

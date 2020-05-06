@@ -13,7 +13,7 @@ from django.contrib.auth import authenticate
 import json
 from django.core import serializers
 from .models import Product,Category,Customer,Basket,Favourite,Delivery,Invoice,Order, Rating,Address,Coupon
-from .serializers import ProductSerializer, BasketSerializer, FavouriteSerializer, InvoiceSerializerProductManager, InvoiceSerializerOrders,RatingSerializer,MyRatingSerializer,ApprovalListSerializer,SeeMyAddressSerializer
+from .serializers import ProductSerializer, BasketSerializer, FavouriteSerializer, InvoiceSerializerProductManager, InvoiceSerializerOrders,RatingSerializer,MyRatingSerializer,ApprovalListSerializer,SeeMyAddressSerializer,InvoiceSerializerSaleManagerOrders
 from datetime import datetime
 
 """class ObtainTokenPairWithColorView(TokenObtainPairView):
@@ -583,25 +583,29 @@ class addCategory(APIView,):
 class invoiceGivenRange(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     def post(self,request):
+        #print("-----------YESSSS--------")
         if hasattr(request.user, "salesmanager"):
             """
             datetime_str = '09/19/18 13:55:26'
             datetime_object = datetime.strptime(datetime_str, '%m/%d/%y %H:%M:%S')
             """
             data = json.loads(request.body.decode('utf-8'))
+            #print("-------------------NOOO------")
             start = data["start"]
             end = data["end"]
+            #print(start)
+            #print(end)
             start = datetime.strptime(start, '%Y-%m-%d')
             end   = datetime.strptime(end,   '%Y-%m-%d')
 
             Invoices = Invoice.objects.filter(time__range=[start,end])
             
-            serializer = InvoiceSerializerOrders(Invoices,many =True)
-            #print(JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK))
+            serializer = InvoiceSerializerSaleManagerOrders(Invoices,many =True)
+            #print(serializer.data)
             return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
 
         else:
-             Response(status=status.HTTP_400_BAD_REQUEST)
+            Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 def allCustomerEmails():
