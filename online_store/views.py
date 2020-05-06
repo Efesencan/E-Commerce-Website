@@ -880,3 +880,14 @@ class useCoupon(APIView):
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
+class navbarGlobals(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self,request):
+        customer = request.user.customer
+        cId = customer.cId
+        
+        numBasket = len(Basket.objects.filter(cId = cId, isPurchased = False))
+        numFav = len(Favourite.objects.filter(cId = cId))
+        data = {"numBasket" : numBasket , "numFav": numFav}
+        
+        return Response(data = data,status=status.HTTP_200_OK)
