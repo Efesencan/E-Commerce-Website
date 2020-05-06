@@ -778,7 +778,7 @@ class seeMyAddress(APIView,):
            # base = "address"
            # counter =1 
             for i in x:
-                data.append(str(i))
+                data.append({"addressId": i.aId, "address":i.address})
             #print(data)
             return Response(data = data,status=status.HTTP_200_OK)      
         else:
