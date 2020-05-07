@@ -910,7 +910,7 @@ class searchUser(APIView):
             ratingSerializer = ApprovalListSerializer(ratings,many =True)
             
             
-            
+          
             delivery =   Invoice.objects.filter(cId = cId ,dId__IsDelivered=False)
 
             invoiceSerializer = InvoiceSerializerProductManager2(delivery,many =True)

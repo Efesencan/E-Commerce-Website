@@ -53,7 +53,6 @@ class CardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ['pId','price', 'oldPrice', 'imgSrc', 'name','stock','categoryName','avgRating']
-    
     def get_avgRating(self,obj):
         x= (Rating.objects.filter(pId = obj.pId, waitingForApproval =False).aggregate(Avg('rating'))["rating__avg"])
         if x is not None:
