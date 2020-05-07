@@ -48,11 +48,17 @@ class ProductSerializer(serializers.ModelSerializer):
 class CardSerializer(serializers.ModelSerializer):   
     # view that use this serializer:
     #search        
-
+    avgRating = serializers.SerializerMethodField()
     """ Product Model Serializer """
     class Meta:
         model = Product
-        fields = ['pId','price', 'oldPrice', 'imgSrc', 'name','stock']
+        fields = ['pId','price', 'oldPrice', 'imgSrc', 'name','stock','avgRating']
+    def get_avgRating(self,obj):
+        x= (Rating.objects.filter(pId = obj.pId, waitingForApproval =False).aggregate(Avg('rating'))["rating__avg"])
+        if x is not None:
+            return int(x)
+        else:
+            return 0
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):
@@ -72,7 +78,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         return len(Rating.objects.filter(pId = obj.pId))
 
     def get_avgRating(self,obj):
-        x= (Rating.objects.filter(pId = obj.pId).aggregate(Avg('rating'))["rating__avg"])
+        x= (Rating.objects.filter(pId = obj.pId, waitingForApproval =False).aggregate(Avg('rating'))["rating__avg"])
         if x is not None:
             return int(x)
         else:
