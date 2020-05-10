@@ -11,6 +11,8 @@ class Account(AbstractUser):
 
 class Customer(models.Model):
     cId       = models.AutoField(primary_key=True)
+    age       = models.IntegerField(null =True)
+    sex       = models.BooleanField()
    # address   = models.CharField(max_length=500, null=True)
     taxNumber = models.IntegerField(null =True)  
 

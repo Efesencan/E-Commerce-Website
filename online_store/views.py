@@ -891,10 +891,12 @@ class navbarGlobals(APIView):
         if hasattr(request.user, "customer"):
             customer = request.user.customer
             cId = customer.cId
-            
-            numBasket = len(Basket.objects.filter(cId = cId, isPurchased = False))
+            countBasket = 0
+            numBasket = Basket.objects.filter(cId = cId, isPurchased = False)
+            for i in numBasket:
+                countBasket += i.quantity
             numFav = len(Favourite.objects.filter(cId = cId))
-            data = {"numBasket" : numBasket , "numFav": numFav}
+            data = {"numBasket" : countBasket , "numFav": numFav}
             
             return Response(data = data,status=status.HTTP_200_OK)
         data = {"numBasket" : 0 , "numFav": 0}
