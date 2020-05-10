@@ -60,7 +60,7 @@ class Product(models.Model):
     stock            = models.IntegerField()  
     imgSrc           = models.CharField(max_length=100)
     name             = models.CharField(max_length=50) # TEXT 
-    
+    displayOldPrice  = models.BooleanField()
     cost             = models.FloatField()
     
     modelNo          = models.CharField(max_length=50) # TEXT ,BV200423 universal code
