@@ -19,7 +19,7 @@ class Customer(models.Model):
     user = models.OneToOneField(
         Account,
         on_delete=models.CASCADE,
-        related_name = "myCustomer",
+        related_name = "customer",
     )
 
 class Address(models.Model):
