@@ -973,19 +973,23 @@ class advanceSearch(APIView):
         option     = data["option"]    if "option"     in data else True
         text       = data["text"] 
         
+
        
         orderBy    = "productRating"   if orderBy =="rating"  else orderBy
         print("-----")
         #print(orderBy)
         #print(option)
-        search1 = Product.objects.filter(isActive = True ,name__icontains = text)
-        search2 = Product.objects.filter(isActive = True ,description__icontains = text)
-        search3 = Product.objects.filter(isActive = True ,disturbuterInfo__icontains = text)
-        search4 = Product.objects.filter(isActive = True ,modelNo__icontains = text)
-        search5 = Product.objects.filter(isActive = True ,categoryName__categoryName__icontains = text)
-        
-        search = search1|search2|search3|search4|search5
 
+        if text != "___category___":
+            search1 = Product.objects.filter(isActive = True ,name__icontains = text)
+            search2 = Product.objects.filter(isActive = True ,description__icontains = text)
+            search3 = Product.objects.filter(isActive = True ,disturbuterInfo__icontains = text)
+            search4 = Product.objects.filter(isActive = True ,modelNo__icontains = text)
+            search5 = Product.objects.filter(isActive = True ,categoryName__categoryName__icontains = text)
+            
+            search = search1|search2|search3|search4|search5
+        else:
+            search =Product.objects.filter(isActive = True )
         query_set = search.filter(price__range=(priceLow,priceHigh))
         query_set = query_set.annotate(productAvgRating = Avg('productRating__rating',filter = Q(productRating__Approved=True )))
 
