@@ -154,7 +154,7 @@ class Order(models.Model):
 
 class Rating(models.Model):
     rId                 = models.AutoField(primary_key=True)
-    pId                 = models.ForeignKey('Product', null=True,on_delete = models.SET_NULL)
+    pId                 = models.ForeignKey('Product', null=True,on_delete = models.SET_NULL,related_name ="productRating")
     cId                 = models.ForeignKey('Customer', null=True,on_delete = models.SET_NULL)
     rating              = models.IntegerField(null = True)
     commentbody         = models.CharField(max_length=200,null = True)

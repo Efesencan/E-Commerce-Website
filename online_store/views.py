@@ -15,7 +15,8 @@ from django.core import serializers
 from .models import Product,Category,Customer,Basket,Favourite,Delivery,Invoice,Order, Rating,Address,Coupon
 from .serializers import ProductSerializer, BasketSerializer, FavouriteSerializer, InvoiceSerializerProductManager, InvoiceSerializerOrders,RatingSerializer,MyRatingSerializer,ApprovalListSerializer,SeeMyAddressSerializer,InvoiceSerializerSaleManagerOrders,InvoiceSerializerProductManager2
 from datetime import datetime
-
+from django.db.models import Avg
+from django.db.models import  Q
 """class ObtainTokenPairWithColorView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 """
@@ -934,3 +935,38 @@ class searchUser(APIView):
 
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class advanceSearch(APIView):
+    permission_classes = (permissions.AllowAny,)
+    def post(self, request):
+        
+        data    = json.loads(request.body.decode('utf-8'))
+        # condition_if_true if condition else condition_if_false
+        priceLow   = data["priceLow"]  if "priceLow"   in data else 0
+        priceHigh  = data["priceHigh"] if "priceHigh"  in data else 9999999
+        category   = data["category"]  if "category"   in data else None
+        rating     = data["rating"]    if "rating"     in data else 0
+        orderBy    = data["orderBy"]   if "orderBy"    in data else "name"
+        option     = data["option"]    if "option"     in data else True
+
+        orderBy    = "productRating"   if orderBy =="rating"  else orderBy
+        print("-----")
+        print(orderBy)
+        print(option)
+        query_set = Product.objects.filter(price__range=(priceLow,priceHigh),isActive =True)
+        query_set = query_set.annotate(productAvgRating = Avg('productRating__rating',filter = Q(productRating__Approved=True )))
+
+        if rating != 0:
+            query_set  = query_set.filter(productAvgRating__gte = rating)
+
+        if category != None:
+            query_set=query_set.filter(categoryName=category)
+        
+        query_set=query_set.order_by(orderBy)
+
+        if option == False:
+            query_set = query_set.reverse()
+        #print(query_set)
+        serializer = ProductDetailSerializer(query_set,many =True)
+        return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
