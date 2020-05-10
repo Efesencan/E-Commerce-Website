@@ -840,13 +840,32 @@ class changeEmail(APIView):
 class createCoupon(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     def post(self, request):
+        print(request.user)
         if hasattr(request.user, "salesmanager"):
-            data = json.loads(request.body.decode('utf-8'))
-            quantity =  data["quantity"] 
-            couponName = data["couponName"]
+            data         = json.loads(request.body.decode('utf-8'))
+            quantity     = data["quantity"] 
+            couponName   = data["couponName"]
             discountRate = data["discountRate"]
+            ageLow       = data["ageLow"]    if  "ageLow" in data  else 0
+            ageHigh      = data["ageHigh"]   if  "ageHigh" in data else 150
+            sex          = data["sex"]       if  "sex"     in data else "both"
+
+            if sex == "both":
+                accounts = Account.objects.filter(age__range= (ageLow,ageHigh),productmanager=None, salesmanager=None)
+            else:
+                sex = True if sex == "Male" else False
+                accounts = Account.objects.filter(age__range= (ageLow,ageHigh),sex = sex,productmanager=None, salesmanager=None)
+           
+            print(accounts)
+            raise "stop"
+
+            count = len(accounts)
             for i in range(quantity):
                 coupon_object = Coupon(couponName = couponName, discountRate = discountRate, cId = None)
+                if count > 0:
+                    #mail at
+                    accounts.pop
+
                 coupon_object.save()
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)

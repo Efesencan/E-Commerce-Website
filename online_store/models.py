@@ -19,6 +19,7 @@ class Customer(models.Model):
     user = models.OneToOneField(
         Account,
         on_delete=models.CASCADE,
+        related_name = "myCustomer",
     )
 
 class Address(models.Model):
@@ -41,12 +42,14 @@ class ProductManager(models.Model):
         Account,
         on_delete=models.CASCADE,
         primary_key=True,
+        related_name = "productmanager",
     )
 class SalesManager(models.Model):
     user = models.OneToOneField(
         Account,
         on_delete=models.CASCADE,
         primary_key=True,
+        related_name = "salesmanager",
     )
 
 # Create your models here.
