@@ -952,8 +952,8 @@ class advanceSearch(APIView):
 
         orderBy    = "productRating"   if orderBy =="rating"  else orderBy
         print("-----")
-        print(orderBy)
-        print(option)
+        #print(orderBy)
+        #print(option)
         query_set = Product.objects.filter(price__range=(priceLow,priceHigh),isActive =True)
         query_set = query_set.annotate(productAvgRating = Avg('productRating__rating',filter = Q(productRating__Approved=True )))
 
