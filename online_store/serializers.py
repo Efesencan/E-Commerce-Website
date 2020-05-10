@@ -21,10 +21,13 @@ class AccountSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True)
     username = serializers.CharField()
     password = serializers.CharField(min_length=8, write_only=True)
+    age      = serializers.CharField() # front will sent us with this format
+    sex      = serializers.BooleanField()
+
 
     class Meta:
         model = Account
-        fields = ('email', 'username', 'password')
+        fields = ('email', 'username', 'password','age','sex')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):

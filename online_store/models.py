@@ -4,15 +4,15 @@ from django.contrib.auth.models import AbstractUser
 
 
 class Account(AbstractUser):
-    pass
+    age       = models.IntegerField(null =True)
+    sex       = models.BooleanField()
+
 
 # https://docs.djangoproject.com/en/1.8/_modules/django/contrib/auth/models/
 
 
 class Customer(models.Model):
     cId       = models.AutoField(primary_key=True)
-    age       = models.IntegerField(null =True)
-    sex       = models.BooleanField()
    # address   = models.CharField(max_length=500, null=True)
     taxNumber = models.IntegerField(null =True)  
 

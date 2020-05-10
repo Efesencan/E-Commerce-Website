@@ -44,6 +44,7 @@ class AccountCreate(APIView):
         if serializer.is_valid():
             data = serializer.validated_data["username"]
             data2 = serializer.validated_data["email"]
+
             duplicate_users = Account.objects.filter(username=data)
             duplicate_email = Account.objects.filter(email = data2)
             if(duplicate_users):
@@ -947,7 +948,7 @@ class advanceSearch(APIView):
         # condition_if_true if condition else condition_if_false
         priceLow   = data["priceLow"]  if "priceLow"   in data else 0
         priceHigh  = data["priceHigh"] if "priceHigh"  in data else 9999999
-        category   = data["category"]  if "category"   in data else None
+        category   = data["category"]  if "category"   in data else "all"
         rating     = data["rating"]    if "rating"     in data else 0
         orderBy    = data["orderBy"]   if "orderBy"    in data else "name"
         option     = data["option"]    if "option"     in data else True
@@ -972,7 +973,7 @@ class advanceSearch(APIView):
         if rating != 0:
             query_set  = query_set.filter(productAvgRating__gte = rating)
 
-        if category != None:
+        if category != "all":
             query_set=query_set.filter(categoryName=category)
         
         query_set=query_set.order_by(orderBy)
