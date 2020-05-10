@@ -15,7 +15,8 @@ from django.core import serializers
 from .models import Product,Category,Customer,Basket,Favourite,Delivery,Invoice,Order, Rating,Address,Coupon
 from .serializers import ProductSerializer, BasketSerializer, FavouriteSerializer, InvoiceSerializerProductManager, InvoiceSerializerOrders,RatingSerializer,MyRatingSerializer,ApprovalListSerializer,SeeMyAddressSerializer,InvoiceSerializerSaleManagerOrders,InvoiceSerializerProductManager2
 from datetime import datetime
-
+from django.db.models import Avg
+from django.db.models import  Q
 """class ObtainTokenPairWithColorView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 """
@@ -301,7 +302,7 @@ class mainPage(APIView):
         all_json = {}
         item = 0
         for category in categories:
-            query_set = Product.objects.filter(categoryName=category, isActive = True)[:3].values("pId","oldPrice","price","description","imgSrc","name")
+            query_set = Product.objects.filter(categoryName=category, isActive = True)[:3].values("pId","oldPrice","price","description","imgSrc","name","displayOldPrice")
             #print("************")
             #print(query_set)
             #print("************")
@@ -522,9 +523,9 @@ class orders(APIView):
                         data[str(invoice.oId.oId)] = dict ()
                         data[str(invoice.oId.oId)]["time"] = invoice.time
                         data[str(invoice.oId.oId)]["totalPrice"] = invoice.price * invoice.bId.quantity
-                        data[str(invoice.oId.oId)]["items"] = [{"pId" : invoice.bId.pId.pId, "quantity": invoice.bId.quantity, "price": invoice.price, "name": invoice.bId.pId.name, "isDelivered":invoice.dId.IsDelivered}]
+                        data[str(invoice.oId.oId)]["items"] = [{"pId" : invoice.bId.pId.pId,"imgSrc":invoice.bId.pId.imgSrc, "quantity": invoice.bId.quantity, "price": invoice.price, "name": invoice.bId.pId.name, "isDelivered":invoice.dId.IsDelivered}]
                     else:
-                        data[str(invoice.oId.oId)]["items"].append({"pId" : invoice.bId.pId.pId, "quantity": invoice.bId.quantity, "price": invoice.price,"name": invoice.bId.pId.name, "isDelivered":invoice.dId.IsDelivered})
+                        data[str(invoice.oId.oId)]["items"].append({"pId" : invoice.bId.pId.pId, "imgSrc":invoice.bId.pId.imgSrc,"quantity": invoice.bId.quantity, "price": invoice.price,"name": invoice.bId.pId.name, "isDelivered":invoice.dId.IsDelivered})
                         data[str(invoice.oId.oId)]["totalPrice"] += invoice.price * invoice.bId.quantity
                 return Response(data = data , status=status.HTTP_200_OK)
             else:
@@ -887,13 +888,16 @@ class useCoupon(APIView):
 class navbarGlobals(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     def get(self,request):
-        customer = request.user.customer
-        cId = customer.cId
-        
-        numBasket = len(Basket.objects.filter(cId = cId, isPurchased = False))
-        numFav = len(Favourite.objects.filter(cId = cId))
-        data = {"numBasket" : numBasket , "numFav": numFav}
-        
+        if hasattr(request.user, "customer"):
+            customer = request.user.customer
+            cId = customer.cId
+            
+            numBasket = len(Basket.objects.filter(cId = cId, isPurchased = False))
+            numFav = len(Favourite.objects.filter(cId = cId))
+            data = {"numBasket" : numBasket , "numFav": numFav}
+            
+            return Response(data = data,status=status.HTTP_200_OK)
+        data = {"numBasket" : 0 , "numFav": 0}
         return Response(data = data,status=status.HTTP_200_OK)
 
 class searchUser(APIView):
@@ -931,3 +935,48 @@ class searchUser(APIView):
 
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class advanceSearch(APIView):
+    permission_classes = (permissions.AllowAny,)
+    def post(self, request):
+        
+        data    = json.loads(request.body.decode('utf-8'))
+        # condition_if_true if condition else condition_if_false
+        priceLow   = data["priceLow"]  if "priceLow"   in data else 0
+        priceHigh  = data["priceHigh"] if "priceHigh"  in data else 9999999
+        category   = data["category"]  if "category"   in data else None
+        rating     = data["rating"]    if "rating"     in data else 0
+        orderBy    = data["orderBy"]   if "orderBy"    in data else "name"
+        option     = data["option"]    if "option"     in data else True
+        text       = data["text"] 
+        
+       
+        orderBy    = "productRating"   if orderBy =="rating"  else orderBy
+        print("-----")
+        #print(orderBy)
+        #print(option)
+        search1 = Product.objects.filter(isActive = True ,name__icontains = text)
+        search2 = Product.objects.filter(isActive = True ,description__icontains = text)
+        search3 = Product.objects.filter(isActive = True ,disturbuterInfo__icontains = text)
+        search4 = Product.objects.filter(isActive = True ,modelNo__icontains = text)
+        search5 = Product.objects.filter(isActive = True ,categoryName__categoryName__icontains = text)
+        
+        search = search1|search2|search3|search4|search5
+
+        query_set = search.filter(price__range=(priceLow,priceHigh))
+        query_set = query_set.annotate(productAvgRating = Avg('productRating__rating',filter = Q(productRating__Approved=True )))
+
+        if rating != 0:
+            query_set  = query_set.filter(productAvgRating__gte = rating)
+
+        if category != None:
+            query_set=query_set.filter(categoryName=category)
+        
+        query_set=query_set.order_by(orderBy)
+
+        if option == False:
+            query_set = query_set.reverse()
+        #print(query_set)
+        serializer = ProductDetailSerializer(query_set,many =True)
+        return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)

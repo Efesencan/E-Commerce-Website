@@ -52,9 +52,9 @@ class CardSerializer(serializers.ModelSerializer):
     """ Product Model Serializer """
     class Meta:
         model = Product
-        fields = ['pId','price', 'oldPrice', 'imgSrc', 'name','stock','categoryName','avgRating']
+        fields = ['pId','price', 'oldPrice', 'imgSrc', 'name','stock','categoryName','avgRating','displayOldPrice']
     def get_avgRating(self,obj):
-        x= (Rating.objects.filter(pId = obj.pId, waitingForApproval =False).aggregate(Avg('rating'))["rating__avg"])
+        x= (Rating.objects.filter(pId = obj.pId, waitingForApproval =False,Approved=True).aggregate(Avg('rating'))["rating__avg"])
         if x is not None:
             return int(x)
         else:
@@ -75,12 +75,12 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     avgRating = serializers.SerializerMethodField()
     class Meta:
         model = Product
-        fields = ['pId','price', 'oldPrice', 'imgSrc', 'name','stock','cost','modelNo','description','warrantyStatus','disturbuterInfo','categoryName','listedDate','images','numComment','avgRating']
+        fields = ['pId','price', 'oldPrice', 'imgSrc', 'name','stock','cost','modelNo','description','warrantyStatus','disturbuterInfo','categoryName','listedDate','images','numComment','avgRating','displayOldPrice']
     def get_numComment(self,obj):
         return len(Rating.objects.filter(pId = obj.pId))
 
     def get_avgRating(self,obj):
-        x= (Rating.objects.filter(pId = obj.pId, waitingForApproval =False).aggregate(Avg('rating'))["rating__avg"])
+        x= (Rating.objects.filter(pId = obj.pId, waitingForApproval =False, Approved=True).aggregate(Avg('rating'))["rating__avg"])
         if x is not None:
             return int(x)
         else:

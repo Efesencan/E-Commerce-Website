@@ -49,6 +49,8 @@ urlpatterns = [
     path("useCoupon",views.useCoupon.as_view(),name="useCoupon"),
     path("navbarGlobals",views.navbarGlobals.as_view(),name="navbarGlobals"),
     path("searchUser",views.searchUser.as_view(),name="searchUser"),
+
+    path("advanceSearch",views.advanceSearch.as_view(),name="advanceSearch"),
 ]
 
 
