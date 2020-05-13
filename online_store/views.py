@@ -1079,24 +1079,19 @@ class emailMyInvoice(APIView):
             
             msg.content_subtype = 'html'
     
-            
+            # outputFilename = "InvoiceTest.pdf"
+            # resultFile = open(outputFilename, "w+b")
 
+            # pisaStatus = pisa.CreatePDF(
+            #         message+"",                # the HTML to convert
+            # dest=resultFile)           # file handle to recieve result
 
-            outputFilename = "InvoiceTest.pdf"
-            resultFile = open(outputFilename, "w+b")
-
-
-            pisaStatus = pisa.CreatePDF(
-                    message+"",                # the HTML to convert
-            dest=resultFile)           # file handle to recieve result
-
-            # close output file
-            resultFile.close() 
-            msg.attach_file('InvoiceTest.pdf')  
+            # # close output file
+            # resultFile.close() 
+            # msg.attach_file('InvoiceTest.pdf')  
             msg.send()
             
-           
-
+        
             return Response(status=status.HTTP_200_OK)
 
             
