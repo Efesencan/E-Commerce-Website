@@ -135,6 +135,9 @@
           <td>
             Price
           </td>
+          <td>
+            Quantity
+          </td>
         </tr>
 
         {% for item in item_list %}
@@ -145,6 +148,10 @@
 
           <td>
             {{item.price}}
+          </td>
+
+          <td>
+            {{item.quantity}}
           </td>
         </tr>
         {% endfor %}

@@ -410,15 +410,45 @@ class buyBasket(APIView):
                 print("Products to be purchased: **********")
                 
                 #allCustomerEmails(), 
-        body = "Dear " + str(request.user.username ) + " , \n You have successfully purchase the product :) " 
-        print("**********")
-        send_mail(
-        'New Purchase',    
-        body, # body şu ürün discount kadar indirime uğradı firsatı kaçırma 
-        'businessdinostore@gmail.com', 
-        [request.user.email], 
-        fail_silently=True,
-        )     
+            oId = order.oId
+            invoices = Invoice.objects.filter(oId = oId)
+        
+            items = []
+            totalPrice = 0
+            for i in invoices:
+                items.append({"price":i.price,"quantity" : i.bId.quantity,"name":i.bId.pId.name})
+                totalPrice += i.price*i.bId.quantity
+            print(items)
+
+            if hasattr(request.user, "customer"): 
+                username = request.user.username
+                
+                htmly     = get_template('email/invoiceTemplate.html')
+
+                d = { 'username': username ,"item_list": items,"totalPrice": format(totalPrice, '.2f')}
+                subject = 'Deneme'
+                from_email = 'businessdinostore@gmail.com'
+                to = [ request.user.email ]
+                print(to)
+
+                message = htmly.render(d)
+                
+                print("**********HERE*************\n\n\n")
+                msg = EmailMessage(subject, message, to=to, from_email=from_email)
+                
+                msg.content_subtype = 'html'
+        
+                # outputFilename = "InvoiceTest.pdf"
+                # resultFile = open(outputFilename, "w+b")
+
+                # pisaStatus = pisa.CreatePDF(
+                #         message+"",                # the HTML to convert
+                # dest=resultFile)           # file handle to recieve result
+
+                # # close output file
+                # resultFile.close() 
+                # msg.attach_file('InvoiceTest.pdf')  
+                msg.send()
         return Response(status=status.HTTP_200_OK)
 
 class createProduct(APIView):
@@ -1057,8 +1087,8 @@ class emailMyInvoice(APIView):
         items = []
         totalPrice = 0
         for i in invoices:
-            items.append({"price":i.price,"name":i.bId.pId.name})
-            totalPrice += i.price
+            items.append({"price":i.price,"quantity" : i.bId.quantity,"name":i.bId.pId.name})
+            totalPrice += i.price * i.bId.quantity
         print(items)
 
         if hasattr(request.user, "customer"): 
