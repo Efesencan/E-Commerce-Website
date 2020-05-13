@@ -7,7 +7,7 @@ from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import AccountSerializer,CardSerializer,CategorySerializer, ProductDetailSerializer #,MyTokenObtainPairSerializer
-from django.core.mail import send_mail
+from django.core.mail import send_mail,send_mass_mail
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 import json
@@ -17,6 +17,16 @@ from .serializers import ProductSerializer, BasketSerializer, FavouriteSerialize
 from datetime import datetime
 from django.db.models import Avg
 from django.db.models import  Q
+
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import get_template
+from django.template import Context
+from django.core.mail import EmailMessage
+from io import BytesIO
+from django.http import HttpResponse
+from django.template.loader import get_template
+import xhtml2pdf.pisa as pisa
+
 """class ObtainTokenPairWithColorView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 """
@@ -428,8 +438,12 @@ class createProduct(APIView):
             newCategory = Category(categoryName = data["categoryName"], categoryIconScr =categoryIconScr)
             newCategory = newCategory.save()
             data["categoryName"] =newCategory
+
+
+
         del data["categoryIconScr"]
         data["isActive"] = True
+        data["displayOldPrice"] =True
         newProduct = Product(**data)
         newProduct.save()
 
@@ -856,17 +870,41 @@ class createCoupon(APIView):
                 sex = True if sex == "Male" else False
                 accounts = Account.objects.filter(age__range= (ageLow,ageHigh),sex = sex,productmanager=None, salesmanager=None)
            
-            print(accounts)
-            raise "stop"
+            # accoun
+            #for i in accounts:
+            #    if address in i.customer.myAddress :
+            #        .append(i)
+            #
+
 
             count = len(accounts)
+            
             for i in range(quantity):
                 coupon_object = Coupon(couponName = couponName, discountRate = discountRate, cId = None)
-                if count > 0:
-                    #mail at
-                    accounts.pop
-
                 coupon_object.save()
+
+            subject ="New Coupon " + couponName
+            message = ["Dear " + i.username  + ", \n We have a new Coupon for you  :) " for i in accounts ]
+            recipient_list= [i.email for i in accounts]
+            from_email= 'businessdinostore@gmail.com'
+
+            print("Accounts",accounts)
+            print("Subject",subject)
+            print("message:" , message)
+            print("recicipent_list",recipient_list)
+            print("from_email")
+            emailList=[]
+            for i in range(len(accounts)):
+                emailList.append(  (subject,message[i],from_email,[recipient_list[i]])  )
+
+            emailList= tuple(emailList)
+            print(len(emailList))
+
+            for i in emailList:
+                print(i[3])
+            send_mass_mail(emailList, fail_silently=False)
+
+            
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -1002,3 +1040,60 @@ class advanceSearch(APIView):
         #print(query_set)
         serializer = ProductDetailSerializer(query_set,many =True)
         return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
+
+
+class emailMyInvoice(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self,request):
+        
+        data    = json.loads(request.body.decode('utf-8'))
+        oId = data["oId"] 
+        invoices = Invoice.objects.filter(oId = oId)
+    
+        items = []
+        totalPrice = 0
+        for i in invoices:
+            items.append({"price":i.price,"name":i.bId.pId.name})
+            totalPrice += i.price
+        print(items)
+
+        if hasattr(request.user, "customer"): 
+            username = request.user.username
+            
+            htmly     = get_template('email/invoiceTemplate.html')
+
+            d = { 'username': username ,"item_list": items,"totalPrice": format(totalPrice, '.2f')}
+            subject = 'Deneme'
+            from_email = 'businessdinostore@gmail.com'
+            to = [ request.user.email ]
+            print(to)
+
+            message = htmly.render(d)
+             
+            print("**********HERE*************\n\n\n")
+            msg = EmailMessage(subject, message, to=to, from_email=from_email)
+            
+            msg.content_subtype = 'html'
+    
+            
+
+
+            outputFilename = "InvoiceTest.pdf"
+            resultFile = open(outputFilename, "w+b")
+
+
+            pisaStatus = pisa.CreatePDF(
+                    message+"",                # the HTML to convert
+            dest=resultFile)           # file handle to recieve result
+
+            # close output file
+            resultFile.close() 
+            msg.attach_file('InvoiceTest.pdf')  
+            msg.send()
+            
+           
+
+            return Response(status=status.HTTP_200_OK)
+
+            
+           

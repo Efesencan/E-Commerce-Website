@@ -51,6 +51,8 @@ urlpatterns = [
     path("searchUser",views.searchUser.as_view(),name="searchUser"),
 
     path("advanceSearch",views.advanceSearch.as_view(),name="advanceSearch"),
+    path("emailMyInvoice",views.emailMyInvoice.as_view(),name="emailMyInvoice"),
+    
 ]
 
 
