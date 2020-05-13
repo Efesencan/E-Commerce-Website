@@ -25,7 +25,7 @@ from django.core.mail import EmailMessage
 from io import BytesIO
 from django.http import HttpResponse
 from django.template.loader import get_template
-import xhtml2pdf.pisa as pisa
+#import xhtml2pdf.pisa as pisa
 
 """class ObtainTokenPairWithColorView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
