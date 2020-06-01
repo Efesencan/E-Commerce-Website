@@ -26,6 +26,7 @@ from django.core.mail import EmailMessage
 from io import BytesIO
 from django.http import HttpResponse
 from django.template.loader import get_template
+import xhtml2pdf.pisa as pisa
 
 """class ObtainTokenPairWithColorView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
@@ -437,7 +438,21 @@ class buyBasket(APIView):
                 msg = EmailMessage(subject, message, to=to, from_email=from_email)
                 
                 msg.content_subtype = 'html'
-               
+
+                pdfly = get_template('email/dummy.html')
+                pdf = pdfly.render(d)
+
+
+                outputFilename = "InvoiceTest.pdf"
+                resultFile = open(outputFilename, "w+b")
+
+                pisaStatus = pisa.CreatePDF(
+                        pdf+"",                # the HTML to convert
+                dest=resultFile)           # file handle to recieve result
+
+                # # close output file
+                resultFile.close() 
+                msg.attach_file('InvoiceTest.pdf')  
                 msg.send()
         return Response(status=status.HTTP_200_OK)
 
@@ -1137,10 +1152,7 @@ class emailMyInvoice(APIView):
             # resultFile.close() 
             # msg.attach_file('InvoiceTest.pdf')  
             msg.send()
-            
-
-
-        
+                    
             return Response(status=status.HTTP_200_OK)
 
             

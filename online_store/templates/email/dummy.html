@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Template</title>
+  </head>
+
+  <body>
+    <div>
+      <table>
+        <tr>
+          <td>Name</td>
+          <td>Quantiy</td>
+          <td>Price</td>
+        </tr>
+
+        {% for item in item_list %}
+        <tr class="item">
+          <td>
+            {{item.name}}
+          </td>
+
+          <td>
+            {{item.price}}
+          </td>
+
+          <td>
+            {{item.quantity}}
+          </td>
+        </tr>
+        {% endfor %}
+
+        <tr>
+          <td></td>
+
+          <td>
+            Total: ${{totalPrice}}
+          </td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>
