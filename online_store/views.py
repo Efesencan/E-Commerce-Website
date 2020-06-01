@@ -1144,4 +1144,44 @@ class emailMyInvoice(APIView):
             return Response(status=status.HTTP_200_OK)
 
             
-           
+
+class  editProduct(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    
+    def post(self,request):
+        if hasattr(request.user, "productmanager"):
+            data = json.loads(request.body.decode('utf-8'))
+            pId = data["pId"]
+            productObject = Product.objects.filter(pId = pId)[0]
+            name = data["name"]
+            desc = data["desc"]
+            price = data["price"]
+            warranty = data["warranty"]
+            modelNo = data["modelno"]
+            disturbuterInfo = data["distrubutor"]
+            if name != "":
+                productObject.name = name
+            if desc != "":
+                productObject.desc = desc
+            if price != "":
+                productObject.price = price
+            if warranty != "":
+                productObject.warranty = warranty
+            if modelNo != "":
+                productObject.modelNo = modelNo
+            if disturbuterInfo != "":
+                productObject.disturbuterInfo = disturbuterInfo
+            productObject.save()
+
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+        #pId, name,desc, price,warranty,quantity,modelno,distrubutor
+        
+        
+        
+       
+        

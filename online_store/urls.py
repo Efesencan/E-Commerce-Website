@@ -52,7 +52,7 @@ urlpatterns = [
 
     path("advanceSearch",views.advanceSearch.as_view(),name="advanceSearch"),
     path("emailMyInvoice",views.emailMyInvoice.as_view(),name="emailMyInvoice"),
-    
+    path("editProduct",views.editProduct.as_view(),name="editProduct"),
 ]
 
 
