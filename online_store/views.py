@@ -18,6 +18,7 @@ from datetime import datetime
 from django.db.models import Avg
 from django.db.models import  Q
 
+
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.template import Context
@@ -25,7 +26,6 @@ from django.core.mail import EmailMessage
 from io import BytesIO
 from django.http import HttpResponse
 from django.template.loader import get_template
-#import xhtml2pdf.pisa as pisa
 
 """class ObtainTokenPairWithColorView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
@@ -426,7 +426,7 @@ class buyBasket(APIView):
                 htmly     = get_template('email/invoiceTemplate.html')
 
                 d = { 'username': username ,"item_list": items,"totalPrice": format(totalPrice, '.2f')}
-                subject = 'Deneme'
+                subject = 'New Purchase'
                 from_email = 'businessdinostore@gmail.com'
                 to = [ request.user.email ]
                 print(to)
@@ -437,17 +437,7 @@ class buyBasket(APIView):
                 msg = EmailMessage(subject, message, to=to, from_email=from_email)
                 
                 msg.content_subtype = 'html'
-        
-                # outputFilename = "InvoiceTest.pdf"
-                # resultFile = open(outputFilename, "w+b")
-
-                # pisaStatus = pisa.CreatePDF(
-                #         message+"",                # the HTML to convert
-                # dest=resultFile)           # file handle to recieve result
-
-                # # close output file
-                # resultFile.close() 
-                # msg.attach_file('InvoiceTest.pdf')  
+               
                 msg.send()
         return Response(status=status.HTTP_200_OK)
 
@@ -543,7 +533,32 @@ class updateDelivery(APIView):
             delivery_object.IsDelivered =  IsDelivered
             delivery_object.save()
 
-           
+            #need to send notification mail here
+
+            #customer mail
+            customerMail = invoice.cId.user.email
+                  
+            username = invoice.cId.user.username
+            items = [invoice.bId]
+                
+            htmly     = get_template('email/deliveryTemplate.html')
+
+            d = { 'username': username ,"item_list": items,"isDelivered":IsDelivered}
+            subject = 'Delivery Status Update'
+            from_email = 'businessdinostore@gmail.com'
+            to = [ customerMail]
+            print(to)
+
+            message = htmly.render(d)
+            
+            print("**********HERE*************\n\n\n")
+            msg = EmailMessage(subject, message, to=to, from_email=from_email)
+            
+            msg.content_subtype = 'html'
+    
+                
+            msg.send()
+
             print("-------delivery status update-------")
             return Response(status=status.HTTP_200_OK)
 
@@ -892,12 +907,14 @@ class createCoupon(APIView):
             discountRate = data["discountRate"]
             ageLow       = data["ageLow"]    if  "ageLow" in data  else 0
             ageHigh      = data["ageHigh"]   if  "ageHigh" in data else 150
-            sex          = data["sex"]       if  "sex"     in data else "both"
+            sex          = data["sex"]       if  "sex"     in data else "Both"
+
+            sex = sex.lower()
 
             if sex == "both":
                 accounts = Account.objects.filter(age__range= (ageLow,ageHigh),productmanager=None, salesmanager=None)
             else:
-                sex = True if sex == "Male" else False
+                sex = True if sex == "male" else False
                 accounts = Account.objects.filter(age__range= (ageLow,ageHigh),sex = sex,productmanager=None, salesmanager=None)
            
             # accoun
@@ -1097,7 +1114,7 @@ class emailMyInvoice(APIView):
             htmly     = get_template('email/invoiceTemplate.html')
 
             d = { 'username': username ,"item_list": items,"totalPrice": format(totalPrice, '.2f')}
-            subject = 'Deneme'
+            subject = 'Invoice'
             from_email = 'businessdinostore@gmail.com'
             to = [ request.user.email ]
             print(to)
@@ -1121,6 +1138,8 @@ class emailMyInvoice(APIView):
             # msg.attach_file('InvoiceTest.pdf')  
             msg.send()
             
+
+
         
             return Response(status=status.HTTP_200_OK)
 
