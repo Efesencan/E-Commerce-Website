@@ -950,11 +950,11 @@ class createCoupon(APIView):
         print(request.user)
         if hasattr(request.user, "salesmanager"):
             data         = json.loads(request.body.decode('utf-8'))
-            quantity     = data["quantity"] 
+            quantity     = int(data["quantity"] )
             couponName   = data["couponName"]
-            discountRate = data["discountRate"]
-            ageLow       = data["ageLow"]    if  "ageLow" in data  else 0
-            ageHigh      = data["ageHigh"]   if  "ageHigh" in data else 150
+            discountRate = float(data["discountRate"])
+            ageLow       = int(data["ageLow"])    if  "ageLow" in data  else 0
+            ageHigh      = int(data["ageHigh"])   if  "ageHigh" in data else 150
             sex          = data["sex"]       if  "sex"     in data else "Both"
 
             sex = sex.lower()
