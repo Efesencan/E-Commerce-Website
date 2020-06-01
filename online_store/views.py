@@ -1180,7 +1180,7 @@ class  editProduct(APIView):
             pId = data["pId"]
             productObject = Product.objects.filter(pId = pId)[0]
             name = data["name"]
-            desc = data["desc"]
+            description  = data["desc"]
             price = data["price"]
             warranty = data["warranty"]
             modelNo = data["modelno"]
@@ -1188,7 +1188,7 @@ class  editProduct(APIView):
             if name != "":
                 productObject.name = name
             if desc != "":
-                productObject.desc = desc
+                productObject.description  = desc
             if price != "":
                 productObject.price = price
             if warranty != "":
