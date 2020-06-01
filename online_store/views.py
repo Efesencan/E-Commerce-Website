@@ -793,7 +793,7 @@ class seeRating(APIView):
             query= Rating.objects.filter(pId = pId, waitingForApproval = False, Approved = True )
             serializer = RatingSerializer(query,many =True)
             data = serializer.data
-            elementPerPage = 3
+            elementPerPage = 8
             totalElementCount = len(data)
             lastPage = math.ceil(totalElementCount / elementPerPage)
             data= data[(page-1) * elementPerPage: page * elementPerPage]
