@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Template</title>
+  </head>
+
+  <body>
+    <div>
+      <table>
+        <tr>
+          <td>Name</td>
+          <td>Quantiy</td>
+          <td>Delivery Status</td>
+        </tr>
+
+        {% for item in item_list %}
+        <tr class="item">
+          <td>
+            {{item.pId.name}}
+          </td>
+          <td>
+            {{item.quantity}}
+          </td>
+          <td>
+            {% if isDelivered == True %}
+            Delivered
+            {% endif %}
+            {% if isDelivered == False %}
+            Not Delivered
+            {% endif %}
+  
+          </td>
+
+        
+        </tr>
+        {% endfor %}
+
+      </table>
+    </div>
+  </body>
+</html>

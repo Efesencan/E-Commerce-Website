@@ -570,8 +570,21 @@ class updateDelivery(APIView):
             msg = EmailMessage(subject, message, to=to, from_email=from_email)
             
             msg.content_subtype = 'html'
-    
-                
+            pdfly = get_template('email/dummy2.html')
+            pdf = pdfly.render(d)
+
+
+            outputFilename = "DeliveryTest.pdf"
+            resultFile = open(outputFilename, "w+b")
+
+            pisaStatus = pisa.CreatePDF(
+                        pdf+"",                # the HTML to convert
+                dest=resultFile)           # file handle to recieve result
+
+                # # close output file
+            resultFile.close() 
+            msg.attach_file('DeliveryTest.pdf')  
+        
             msg.send()
 
             print("-------delivery status update-------")
