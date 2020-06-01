@@ -27,6 +27,7 @@ from io import BytesIO
 from django.http import HttpResponse
 from django.template.loader import get_template
 import xhtml2pdf.pisa as pisa
+import math
 
 """class ObtainTokenPairWithColorView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
@@ -788,10 +789,22 @@ class seeRating(APIView):
             serializer = RatingSerializer(query,many =True)
                 
             return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
-        #else:
+        else:
+            query= Rating.objects.filter(pId = pId, waitingForApproval = False, Approved = True )
+            serializer = RatingSerializer(query,many =True)
+            data = serializer.data
+            elementPerPage = 3
+            totalElementCount = len(data)
+            lastPage = math.ceil(totalElementCount / elementPerPage)
+            data= data[(page-1) * elementPerPage: page * elementPerPage]
+            
+            isPrevExist= True if page != 1 else False
+            isNextExist= True if page < lastPage else False
 
-         #   isPrevExist=
-          #  isNextExist=
+            resultData  = {"data": data, "isPrevExist": isPrevExist, "isNextExist":isNextExist,"lastPage":lastPage ,"currentPage":page, "elementPerPage": elementPerPage}
+            return JsonResponse(data=resultData,safe=False, status=status.HTTP_200_OK)
+
+
 
 class deleteRating(APIView):
     permission_classes = (permissions.IsAuthenticated,)
