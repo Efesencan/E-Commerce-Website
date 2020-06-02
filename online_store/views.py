@@ -772,6 +772,23 @@ class reviewRating(APIView):
             rating_object.waitingForApproval = False
             rating_object.Approved    = Approved 
             rating_object.save()
+
+
+            email = rating_object.cId.user.email
+            username = rating_object.cId.user.username
+            isApproved = "approved" if Approved else "rejected"
+            body = "Hello " + str(username) + ",\nYour comment is "+ isApproved +".\nComment Title:" + rating_object.commentHeader +"\nComment Body : " + rating_object.commentbody
+
+            print(body)
+            send_mail(
+                'Dino',    
+                body, # body şu ürün discount kadar indirime uğradı firsatı kaçırma 
+                'businessdinostore@gmail.com', 
+                [email],
+                #allCustomerEmails(), 
+                fail_silently=True,
+            )
+            
             
             return Response(status=status.HTTP_200_OK)
         else:
@@ -1097,6 +1114,7 @@ class advanceSearch(APIView):
     def post(self, request):
         
         data    = json.loads(request.body.decode('utf-8'))
+        print(data)
         # condition_if_true if condition else condition_if_false
         priceLow   = data["priceLow"]  if "priceLow"   in data else 0
         priceHigh  = data["priceHigh"] if "priceHigh"  in data else 9999999
@@ -1138,6 +1156,7 @@ class advanceSearch(APIView):
             query_set = query_set.reverse()
         #print(query_set)
         serializer = ProductDetailSerializer(query_set,many =True)
+        print(serializer.data)
         return JsonResponse(data=serializer.data,safe=False, status=status.HTTP_200_OK)
 
 
@@ -1208,7 +1227,7 @@ class  editProduct(APIView):
             if name != "":
                 productObject.name = name
             if description != "":
-                productObject.description  = desc
+                productObject.description  = description
             if price != "":
                 productObject.price = price
             if warranty != "":
