@@ -1224,6 +1224,8 @@ class  editProduct(APIView):
             warranty = data["warranty"]
             modelNo = data["modelno"]
             disturbuterInfo = data["distrubutor"]
+            stock = data["stock"]
+
             if name != "":
                 productObject.name = name
             if description != "":
@@ -1236,6 +1238,8 @@ class  editProduct(APIView):
                 productObject.modelNo = modelNo
             if disturbuterInfo != "":
                 productObject.disturbuterInfo = disturbuterInfo
+            if stock != "":
+                productObject.stock = stock
             productObject.save()
 
             return Response(status=status.HTTP_200_OK)
