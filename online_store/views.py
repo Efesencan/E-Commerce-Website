@@ -1233,7 +1233,7 @@ class  editProduct(APIView):
             if price != "":
                 productObject.price = price
             if warranty != "":
-                productObject.warranty = warranty
+                productObject.warrantyStatus = warranty
             if modelNo != "":
                 productObject.modelNo = modelNo
             if disturbuterInfo != "":
