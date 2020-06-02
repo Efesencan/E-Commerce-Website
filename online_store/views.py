@@ -820,6 +820,7 @@ class seeRating(APIView):
             isNextExist= True if page < lastPage else False
 
             resultData  = {"data": data, "isPrevExist": isPrevExist, "isNextExist":isNextExist,"lastPage":lastPage ,"currentPage":page, "elementPerPage": elementPerPage}
+            print(resultData)
             return JsonResponse(data=resultData,safe=False, status=status.HTTP_200_OK)
 
 
