@@ -80,7 +80,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         model = Product
         fields = ['pId','price', 'oldPrice', 'imgSrc', 'name','stock','cost','modelNo','description','warrantyStatus','disturbuterInfo','categoryName','listedDate','images','numComment','avgRating','displayOldPrice']
     def get_numComment(self,obj):
-        return len(Rating.objects.filter(pId = obj.pId))
+        return len(Rating.objects.filter(pId = obj.pId,waitingForApproval =False, Approved=True))
 
     def get_avgRating(self,obj):
         x= (Rating.objects.filter(pId = obj.pId, waitingForApproval =False, Approved=True).aggregate(Avg('rating'))["rating__avg"])

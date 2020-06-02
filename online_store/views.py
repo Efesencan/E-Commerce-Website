@@ -383,14 +383,15 @@ class buyBasket(APIView):
             order = Order()
             order.save()
             for productToBePurchased in productsToBePurchased:
+                
+                if(productToBePurchased.pId.stock >= productToBePurchased.quantity ):
+                   productToBePurchased.pId.stock -=  productToBePurchased.quantity
+                   productToBePurchased.pId.save()
+                else:
+                   return Response(data= {"Not enough": "stock"},status=status.HTTP_204_NO_CONTENT)
                 productToBePurchased.isPurchased = True
                 delivery=Delivery(**delivery_object) 
                 delivery.save()
-                #if(productToBePurchased.pId.stock >= productToBePurchased.quantity ):
-                #    productToBePurchased.pId.stock -=  productToBePurchased.quantity
-                #    productToBePurchased.pId.save()
-                #else:
-                #    return Response(data= {"Not enough": "stock"},status=status.HTTP_400_BAD_REQUEST)
 
         
                 print(productToBePurchased) 
