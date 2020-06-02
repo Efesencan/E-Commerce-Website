@@ -472,7 +472,7 @@ class createProduct(APIView):
         else: #new category
             categoryIconScr = data["categoryIconScr"]
             newCategory = Category(categoryName = data["categoryName"], categoryIconScr =categoryIconScr)
-            newCategory = newCategory.save()
+            newCategory.save()
             data["categoryName"] =newCategory
 
 
