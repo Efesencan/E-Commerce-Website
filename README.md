@@ -22,7 +22,7 @@ pip3 install -r Requirements.txt<br/>
 
 ## Project Description:
 
-1.5 Online Store Project
+1.5 Online Store Project <br/>
     This is a web site that presents a number of products in categories and let user to select and buy the desired product. Store has a limited stock, when user selects a product, number of items in the stock must be shown. When the shopping is done, that product should be decreased from the stock and forwarded to delivery department. Each user must be registered before shopping. Just after the payment is confirmed, it must show the invoice on the screen, send it as an email and let the user to download it as a pdf file. There are 4 types of users of this system detailed below. This web site should also as an attractive design so people should find it professional and trust to buy product. This is not just a web site but the shop window of your store. Site should be be good looking and consistent.
  <br/>   Sales Managers are responsible for setting the prices of the products. Sales manager can set a discount on the selected items. When the discount rate and the products are given, web site automatically set the new price and notify the registered
 users about the discount. A product has the following properties: ID, name, model
